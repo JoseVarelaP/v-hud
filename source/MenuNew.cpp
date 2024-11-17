@@ -2412,7 +2412,7 @@ void CMenuNew::ProcessEntryStuff(int enter, int input) {
 
 void CMenuNew::ProcessOriginalOptions(int m, int i, char input, char enter) {
     FrontEndMenuManager.m_nCurrentMenuPage = m;
-    //FrontEndMenuManager.m_nSelectedMenuItem = i;
+    FrontEndMenuManager.m_nCurrentMenuEntry = i;
     FrontEndMenuManager.ProcessMenuOptions(input, NULL, enter);
     bPopulateOriginals = true;
 }
