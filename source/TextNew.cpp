@@ -74,20 +74,34 @@ void CTextNew::Load() {
         strcpy(TextList[i].text, "\0");
     }
 
-    file.open(PLUGIN_PATH(filePtr));
-    if (file.is_open()) {
+    std::wstring wstr = readFile(filePtr);
+    const wchar_t* strfds = wstr.c_str();
+
+    // Prepare the file to be loaded as UTF-8.
+    const std::locale empty_locale = std::locale::empty();
+    typedef std::codecvt_utf8<wchar_t> converter_type;
+    const converter_type* converter = new converter_type;
+    const std::locale utf8_locale = std::locale(empty_locale, converter);
+    std::wifstream langFile(filePtr, std::ios::in | std::ios::binary);
+    langFile.imbue(utf8_locale); // Mark it as utf-8.
+
+    //file.open(PLUGIN_PATH(filePtr));
+    if (langFile.is_open()) {
         int id = 0;
 
-        for (std::string line; getline(file, line);) {
-            char str[16];
-            char* text;
+        // Get the lines and store them to memory.
+        // FE_GEN = General
+        for (std::wstring line; std::getline(langFile, line);) {
+            char str[16]; // Enumerator to load from
+            char* text; // Value of said enumerator.
             int r, g, b, a;
+            std::string strfmt(line.begin(), line.end());
 
             if (!line[0] || line[0] == '#' || line[0] == '[' || line[0] == ';')
                 continue;
 
             text = new char[16000];
-            sscanf(line.c_str(), "%s = %[^\n]", &str, text);
+            sscanf(strfmt.c_str(), "%s = %[^\n]", &str, text);
 
             strcpy(TextList[id].str, str);
             strcpy(TextList[id].text, text);
