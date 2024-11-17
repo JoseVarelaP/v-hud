@@ -70,5 +70,5 @@ public:
 
 };
 
-extern int& gGameState;
+// extern int& gGameState;
 

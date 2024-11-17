@@ -79,28 +79,28 @@ void COverlayLayer::Shutdown() {
 
 void COverlayLayer::UpdateFrameBuffer() {
     if (frameBuffer) {
-        if (frameBuffer->width != Scene.m_pRwCamera->frameBuffer->width ||
-            frameBuffer->height != Scene.m_pRwCamera->frameBuffer->height ||
-            frameBuffer->depth != Scene.m_pRwCamera->frameBuffer->depth) {
+        if (frameBuffer->width != Scene.m_pCamera->frameBuffer->width ||
+            frameBuffer->height != Scene.m_pCamera->frameBuffer->height ||
+            frameBuffer->depth != Scene.m_pCamera->frameBuffer->depth) {
             RwRasterDestroy(frameBuffer);
             frameBuffer = NULL;
         }
     }
 
     if (!frameBuffer)
-        frameBuffer = RwRasterCreate(Scene.m_pRwCamera->frameBuffer->width, Scene.m_pRwCamera->frameBuffer->height, Scene.m_pRwCamera->frameBuffer->depth, rwRASTERTYPECAMERATEXTURE);
+        frameBuffer = RwRasterCreate(Scene.m_pCamera->frameBuffer->width, Scene.m_pCamera->frameBuffer->height, Scene.m_pCamera->frameBuffer->depth, rwRASTERTYPECAMERATEXTURE);
 }
 
 #define SetVerticesHelper(r, ps, t) \
     do { \
         UpdateFrameBuffer(); \
         RwRasterPushContext(frameBuffer); \
-        RwRasterRenderFast(Scene.m_pRwCamera->frameBuffer, 0, 0); \
+        RwRasterRenderFast(Scene.m_pCamera->frameBuffer, 0, 0); \
         RwRasterPopContext(); \
         CSprite2d::SetVertices(r, c, c, c, c, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f); \
         _rwD3D9RWSetRasterStage(t, 1); \
         _rwSetPixelShader(ps); \
-        GetD3DDevice()->SetPixelShaderConstantF(0, fShaderConstant, 1); \
+        GetD3DDevice<IDirect3DDevice9>()->SetPixelShaderConstantF(0, fShaderConstant, 1); \
         RwRenderStateSet(rwRENDERSTATETEXTURERASTER, frameBuffer); \
         _rwD3D9RWSetRasterStage(frameBuffer, 0); \
         RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, CSprite2d::maVertices, 4); \

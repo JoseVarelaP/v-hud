@@ -109,8 +109,8 @@ public:
     static bool bShowMoneyDifference;
     static int nMoneyFadeAlpha;
     static int nMoneyDifferenceFadeAlpha;
-    static int nTimeToShowMoney;
-    static int nTimeToShowMoneyDifference;
+    static unsigned int nTimeToShowMoney;
+    static unsigned int nTimeToShowMoneyDifference;
 
     static bool bShowAmmo;
     static int nAmmoFadeAlpha;
@@ -131,7 +131,7 @@ public:
     static float m_fBigMessageOffset;
     static CRGBA m_BigMessageColor;
     static char m_SuccessFailedText[2][128];
-    static int m_nMiddleTopMessageTime;
+    static unsigned int m_nMiddleTopMessageTime;
     static char m_MiddleTopMessage[16][128];
     static char m_MiddleTopSubMessage[128];
     static int m_nCurrentMiddleTopMessage;

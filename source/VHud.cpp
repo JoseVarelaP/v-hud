@@ -19,11 +19,12 @@
 #include "VHudAPI.h"
 
 #include "pugixml.hpp"
+#include <CGame.h>
 
 using namespace plugin;
 using namespace pugi;
 
-int& gGameState = *(int*)0xC8D4C0;
+//int& gGameState = *(int*)0xC8D4C0;
 
 bool VHud::bInitialised = false;
 HANDLE VHud::pThread = NULL;

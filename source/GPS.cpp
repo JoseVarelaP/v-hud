@@ -127,7 +127,7 @@ void CGPS::DrawLine(CVector2D const&a, CVector2D const&b, float width, CRGBA col
     dir.y = b.y - a.y;
     float angle = atan2f(dir.y, dir.x);
     if (MenuNew.bDrawMenuMap) {
-        float mp = max(2.0f, MenuNew.fMapZoom * 0.5f);
+        float mp = std::max(2.0f, MenuNew.fMapZoom * 0.5f);
         shift[0].x = cosf(angle - 1.5707963f) * SCREEN_COORD(1.25f * mp);
         shift[0].y = sinf(angle - 1.5707963f) * SCREEN_COORD(1.25f * mp);
         shift[1].x = cosf(angle + 1.5707963f) * SCREEN_COORD(1.25f * mp);
@@ -209,8 +209,8 @@ void CGPS::DrawPathLine() {
     if (playa) {
         if (FrontEndMenuManager.m_nTargetBlipIndex
             && CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_nCounter == HIWORD(FrontEndMenuManager.m_nTargetBlipIndex)
-            && CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_nBlipDisplayFlag
-            && DistanceBetweenPoints(CVector2D(FindPlayerCentreOfWorld_NoInteriorShift(0)), CVector2D(CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_vPosition)) < MAX_TARGET_DISTANCE) {
+            && CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_nBlipDisplay
+            && DistanceBetweenPoints(CVector2D(FindPlayerCentreOfWorld_NoInteriorShift(0)), CVector2D(CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_vecPos)) < MAX_TARGET_DISTANCE) {
             CRadar::ClearBlip(FrontEndMenuManager.m_nTargetBlipIndex);
             FrontEndMenuManager.m_nTargetBlipIndex = 0;
         }
@@ -221,8 +221,8 @@ void CGPS::DrawPathLine() {
             && playa->m_pVehicle->m_nVehicleSubClass != VEHICLE_BMX) || MenuNew.bDrawMenuMap) {
             if (FrontEndMenuManager.m_nTargetBlipIndex
                 && CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_nCounter == HIWORD(FrontEndMenuManager.m_nTargetBlipIndex)
-                && CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_nBlipDisplayFlag) {
-                CVector destPosn = CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_vPosition;
+                && CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_nBlipDisplay) {
+                CVector destPosn = CRadarNew::GetRadarTrace()[LOWORD(FrontEndMenuManager.m_nTargetBlipIndex)].m_vecPos;
                 destPosn.z = CWorld::FindGroundZForCoord(destPosn.x, destPosn.y);
 
                 Dest.pathColor = CRadarNew::GetBlipColor(RADAR_SPRITE_WAYPOINT).ToInt();

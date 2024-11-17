@@ -713,9 +713,9 @@ void CMenuNew::AddNewBarItem(char* name, int screen) {
     }
 }
 
-CMenuScreen* CMenuNew::AddNewScreen(char* name) {
+CMenuVHudScreen* CMenuNew::AddNewScreen(char* name) {
     for (int i = 0; i < MAX_MENU_SCREENS; i++) {
-        CMenuScreen* s = &MenuScreen[i];
+        CMenuVHudScreen* s = &MenuScreen[i];
 
         if (s->screenName[0] != '\0')
             continue;
@@ -725,9 +725,9 @@ CMenuScreen* CMenuNew::AddNewScreen(char* name) {
     }
 }
 
-CMenuScreen* CMenuNew::GetMenuScreen(char* name) {
+CMenuVHudScreen* CMenuNew::GetMenuScreen(char* name) {
     for (int i = 0; i < MAX_MENU_SCREENS; i++) {
-        CMenuScreen* s = &MenuScreen[i];
+        CMenuVHudScreen* s = &MenuScreen[i];
 
         if (s->screenName[0] != '\0' &&
             !faststrcmp(s->screenName, name))
@@ -735,7 +735,7 @@ CMenuScreen* CMenuNew::GetMenuScreen(char* name) {
     }
 }
 
-CMenuTab* CMenuNew::GetMenuTab(CMenuScreen* s, char* name) {
+CMenuTab* CMenuNew::GetMenuTab(CMenuVHudScreen* s, char* name) {
     for (int i = 0; i < MAX_MENU_SCREENS; i++) {
         CMenuTab* t = &s->Tab[i];
 
@@ -760,7 +760,7 @@ CMenuEntry* CMenuNew::GetMenuEntry(CMenuTab* t, int i) {
     return e;
 }
 
-CMenuTab* CMenuNew::AddNewTab(CMenuScreen* s, int type, char* tabName, char* actionName, bool full) {
+CMenuTab* CMenuNew::AddNewTab(CMenuVHudScreen* s, int type, char* tabName, char* actionName, bool full) {
     for (int j = 0; j < MAX_MENU_TABS; j++) {
         CMenuTab* t = &s->Tab[j];
 
@@ -1015,7 +1015,7 @@ void CMenuNew::DoMapZoomInOut(bool out) {
 void CMenuNew::RemoveUnusedControllerSettings() {
     static bool checkGInput = false;
     if (!checkGInput) {
-        CMenuScreen* s = GetMenuScreen("FE_SET");
+        CMenuVHudScreen* s = GetMenuScreen("FE_SET");
         CMenuTab* t = GetMenuTab(s, "FE_PAD");
 
         if (GINPUT) {
@@ -1311,7 +1311,7 @@ void CMenuNew::PopulateOriginalMenuStrings(int prev, int i, int curr, int s, int
 }
 
 void CMenuNew::BuildMenuEntriesFromOriginals(int start, int end, int type) {
-    CMenuScreen* s = &MenuScreen[nCurrentScreen];
+    CMenuVHudScreen* s = &MenuScreen[nCurrentScreen];
     CMenuTab* t = &s->Tab[nCurrentTabItem];
 
     for (int i = start; i < end; i++) {
@@ -1517,7 +1517,7 @@ void CMenuNew::Process() {
                 if (!bShowMenu) {
                     if (nCurrentScreen == MENUSCREEN_MAP) {
                         CVector2D prevMapBase = vTempMapBase;
-                        static int timeLeftMousePressed = 0;
+                        static unsigned int timeLeftMousePressed = 0;
 
                         if (bDrawMouse && CheckHover(vMapBase.x - GetMenuMapWholeSize(), vMapBase.x + GetMenuMapWholeSize(), vMapBase.y - GetMenuMapWholeSize(), vMapBase.y + GetMenuMapWholeSize()))
                         if (LeftMouseDown) {
@@ -1846,9 +1846,9 @@ void CMenuNew::ProcessTabStuff() {
 void CMenuNew::DoSettingsBeforeStartingAGame(bool load, int slot) {
     if (load) {
         if (CGenericGameStorage::CheckSlotDataValid(slot == -1 ? nCurrentEntryItem : slot, false)) {
-            FrontEndMenuManager.m_bDontDrawFrontEnd = true;
+            //FrontEndMenuManager.m_bDontDrawFrontEnd = true;
             CGame::bMissionPackGame = false;
-            FrontEndMenuManager.m_bLoadingData = true;
+            //FrontEndMenuManager.m_bLoadingData = true;
             FrontEndMenuManager.field_1B3C = false;
         }
         else {
@@ -2412,7 +2412,7 @@ void CMenuNew::ProcessEntryStuff(int enter, int input) {
 
 void CMenuNew::ProcessOriginalOptions(int m, int i, char input, char enter) {
     FrontEndMenuManager.m_nCurrentMenuPage = m;
-    FrontEndMenuManager.m_nSelectedMenuItem = i;
+    //FrontEndMenuManager.m_nSelectedMenuItem = i;
     FrontEndMenuManager.ProcessMenuOptions(input, NULL, enter);
     bPopulateOriginals = true;
 }
@@ -2496,7 +2496,7 @@ void CMenuNew::CheckSliderMovement(double value) {
     case MENUENTRY_MOUSESENSITIVITY:
         ts.mouseSensitivity += double(value * (1.0 / 200.0));
         ts.mouseSensitivity = clamp(ts.mouseSensitivity, 1.0 / 3200.0, 1.0 / 200.0);
-        TheCamera.m_fMouseAccelHorzntl = (float)ts.mouseSensitivity;
+        TheCamera.m_fMouseAccelHorzntal = (float)ts.mouseSensitivity;
         TheCamera.m_fMouseAccelVertical = (float)ts.mouseSensitivity;
         break;
     case MENUENTRY_SIMPLERETICULESIZE:
@@ -2786,7 +2786,7 @@ void CMenuNew::Draw() {
             }
         }
 
-        if (nTimeForSafeZonesToShow > CTimer::m_snTimeInMillisecondsPauseMode) {
+        if (static_cast<unsigned int>(nTimeForSafeZonesToShow) > CTimer::m_snTimeInMillisecondsPauseMode) {
             DrawSafeZoneAngle(HUD_X(96.0f), HUD_Y(96.0f * SAFE_ZONE_HEIGHT_MULT), 1, 1);
             CSprite2d::DrawRect(CRect(HUD_X(96.0f), HUD_Y(96.0f * SAFE_ZONE_HEIGHT_MULT), 0.0f, 0.0f), CRGBA(0, 0, 0, 100));
             CSprite2d::DrawRect(CRect(0.0f, HUD_Y(96.0f * SAFE_ZONE_HEIGHT_MULT), HUD_X(96.0f), HUD_BOTTOM(96.0f * SAFE_ZONE_HEIGHT_MULT)), CRGBA(0, 0, 0, 100));
@@ -3135,7 +3135,7 @@ void CMenuNew::DrawDefault() {
         static float bb = 0.0f;
         bb = clamp(bb, 0.0f, (menuEntry.bottom + GetMenuHorSpacing()) * VISIBLE_ENTRIES - 1);
         CSprite2d::DrawRect(CRect(menuEntry.left, menuEntry.top, menuEntry.left + menuEntry.right, menuEntry.top + bb), CRGBA(0, 0, 0, FadeIn(180)));
-        bb = max((menuEntry.bottom * (GetEntryBackHeight() + 1)) + (GetMenuHorSpacing() * (GetEntryBackHeight())), 0.0f);
+        bb = std::max((menuEntry.bottom * (GetEntryBackHeight() + 1.f)) + (GetMenuHorSpacing() * (GetEntryBackHeight())), 0.0f);
         //
 
         nCurrentEntryItemHover = -1;
@@ -3571,7 +3571,7 @@ void CMenuNew::DrawDefault() {
 void CMenuNew::DrawTabMemoryAvailable() {
     CRect menuEntry = GetMenuEntryRect();
 
-    float bb = max(menuEntry.bottom + GetMenuHorSpacing(), 0);
+    float bb = std::max(menuEntry.bottom + GetMenuHorSpacing(), 0.f);
     CSprite2d::DrawRect(CRect(menuEntry.left, menuEntry.top, menuEntry.left + menuEntry.right, menuEntry.top + menuEntry.bottom + bb), CRGBA(0, 0, 0, FadeIn(180)));
 
     CFontNew::SetBackground(false);
@@ -3609,7 +3609,7 @@ void CMenuNew::DrawPadLine(float x, float y, int w, int h) {
 void CMenuNew::DrawTabGamePad() {
     CRect rect = GetMenuEntryRect();
 
-    float bb = max(rect.bottom + GetMenuHorSpacing(), 0) * 6;
+    float bb = std::max(rect.bottom + GetMenuHorSpacing(), 0.f) * 6.f;
     CSprite2d::DrawRect(CRect(rect.left, rect.top, rect.left + rect.right, rect.top + rect.bottom + bb), CRGBA(0, 0, 0, FadeIn(180)));
 
     if (nCurrentInputType == MENUINPUT_BAR) {
@@ -4869,31 +4869,31 @@ void CMenuNew::PassSettingsToCurrentGame(const CMenuSettings* s) {
     CMenuManager& m = FrontEndMenuManager;
 
     // Keyboard
-    TheCamera.m_fMouseAccelHorzntl = s->mouseSensitivity;
+    TheCamera.m_fMouseAccelHorzntal = s->mouseSensitivity;
     TheCamera.m_fMouseAccelVertical = s->mouseSensitivity;
     m.bInvertMouseY = !s->invertMouseY;
     CVehicle::m_bEnableMouseSteering = s->mouseSteering;
     CVehicle::m_bEnableMouseFlying = s->mouseFlying;
     m.m_nController = s->controller;
-    m.invertPadX1 = s->invertPadX1;
-    m.invertPadY1 = s->invertPadY1;
-    m.invertPadX2 = s->invertPadX2;
-    m.invertPadY2 = s->invertPadY2;
-    m.swapPadAxis1 = s->swapPadAxis1;
-    m.swapPadAxis2 = s->swapPadAxis2;
+    m.m_bPrefsInvertPadX1 = s->invertPadX1;
+    m.m_bPrefsInvertPadY1 = s->invertPadY1;
+    m.m_bPrefsInvertPadX2 = s->invertPadX2;
+    m.m_bPrefsInvertPadY2 = s->invertPadY2;
+    m.m_bPrefsSwapPadAxis1 = s->swapPadAxis1;
+    m.m_bPrefsSwapPadAxis2 = s->swapPadAxis2;
 
     {
         TheCamera.m_bUseMouse3rdPerson = s->controller == 0;
     }
 
     // Audio
-    m.m_nSfxVolume = s->sfxVolume;
-    m.m_nRadioVolume = s->radioVolume;
-    m.m_nRadioStation = s->radioStation;
-    m.m_bRadioAutoSelect = s->radioAutoSelect;
-    m.m_bRadioEq = s->radioEQ;
-    m.m_bTracksAutoScan = s->tracksAutoScan;
-    m.m_nRadioMode = s->radioMode;
+    m.m_nPrefsSfxVolume = s->sfxVolume;
+    m.m_nPrefsMusicVolume = s->radioVolume;
+    m.m_nPrefsRadioStation = s->radioStation;
+    m.m_bPrefsRadioAutoSelect= s->radioAutoSelect;
+    m.m_bPrefsRadioEq = s->radioEQ;
+    m.m_bPrefsTracksAutoScan = s->tracksAutoScan;
+    m.m_nPrefsRadioMode = s->radioMode;
 
     {
         AudioEngine.SetMusicMasterVolume(s->radioVolume);
@@ -4905,37 +4905,35 @@ void CMenuNew::PassSettingsToCurrentGame(const CMenuSettings* s) {
     }
 
     // Display
-    m.m_nBrightness = s->brightness;
-    m.m_bShowSubtitles = s->subtitles;
-    int prevLang = m.m_nLanguage;
-    m.m_nLanguage = s->language;
-    m.m_bHudOn = s->showHUD;
-    m.m_nRadarMode = !s->showRadar;
-    m.m_bSavePhotos = s->savePhotos;
+    m.m_nPrefsBrightness = s->brightness;
+    m.m_bPrefsShowSubtitles = s->subtitles;
+    char prevLang = m.m_nPrefsLanguage;
+    m.m_nPrefsLanguage = s->language;
+    m.m_bPrefsShowHud = s->showHUD;
+    m.m_nPrefsRadarMode = !s->showRadar;
+    m.m_bPrefsSavePhotos = s->savePhotos;
 
     {
-        if (m.m_nLanguage == prevLang) {
-            m.m_bLanguageChanged = false;
-        }
-        else {
-            m.m_bLanguageChanged = true;
+        if (m.HasLanguageChanged()) {
             m.m_bReinitLanguageSettings = true;
             m.InitialiseChangedLanguageSettings(false);
         }
     }
 
+    
     gamma.SetGamma(s->gamma, 1);
 
     // Graphics
     if (MenuNew.bApplyGraphicsChanges) {
-        m.m_nAppliedResolution = s->videoMode;
-        m.m_nResolution = s->videoMode;
-        m.m_bMipMapping = s->mipMapping;
-        m.m_nAntiAliasingLevel = s->antiAliasing;
-        m.m_nAppliedAntiAliasingLevel = s->antiAliasing;
-        m.m_fDrawDistance = s->drawDist;
-        m.m_bWidescreenOn = s->widescreen;
-        m.m_bFrameLimiterOn = s->frameLimiter;
+        // TODO: Figure out replacements for these
+        //m.m_nAppliedResolution = s->videoMode;
+        //m.m_nResolution = s->videoMode;
+        m.m_bPrefsMipMapping = s->mipMapping;
+        m.m_nPrefsAntiAliasing = s->antiAliasing;
+        m.m_nPrefsAntiAliasingDisp= s->antiAliasing;
+        //m.m_fDrawDistance = s->drawDist;
+        m.m_bPrefsUseWideScreen = s->widescreen;
+        //m.m_bFrameLimiterOn = s->frameLimiter;
 
         {
             switch (s->screenType) {
@@ -5146,8 +5144,8 @@ void CMenuNew::ProcessFullscreenToggle() {
     if ((RsGlobal.maximumWidth != previousWidth || RsGlobal.maximumHeight != previousHeight)) {
         ReloadCameraStuffAfterScreenChange();
 
-        int w = Scene.m_pRwCamera->frameBuffer->width;
-        int h = Scene.m_pRwCamera->frameBuffer->height;
+        int w = Scene.m_pCamera->frameBuffer->width;
+        int h = Scene.m_pCamera->frameBuffer->height;
 
         RsGlobal.maximumWidth = w;
         RsGlobal.maximumHeight = h;

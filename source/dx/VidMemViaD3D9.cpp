@@ -60,7 +60,8 @@ HRESULT GetVideoMemoryViaD3D9(HMONITOR hMonitor, UINT* pdwAvailableTextureMem) {
             pp.FullScreen_RefreshRateInHz = 0;
             pp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 
-            if (pd3dDevice = GetD3DDevice()) {
+            // https://github.com/DK22Pac/plugin-sdk/pull/167
+            if (pd3dDevice = GetD3DDevice<IDirect3DDevice9>()) {
                 hr = true;
                 //pD3D9->CreateDevice(iAdapter, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &pp, &pd3dDevice);
             }

@@ -478,24 +478,24 @@ void CRadarNew::DrawBlips() {
         if (!trace)
             continue;
 
-        if (!trace[i].m_bTrackingBlip)
+        if (!trace[i].m_bInUse)
             continue;
 
-        if (!MenuNew.TempSettings.showBlips && LOBYTE(trace[i].m_nBlipSprite) != RADAR_SPRITE_WAYPOINT)
+        if (!MenuNew.TempSettings.showBlips && LOBYTE(trace[i].m_nRadarSprite) != RADAR_SPRITE_WAYPOINT)
             continue;
 
         switch (trace[i].m_nBlipType) {
         case BLIP_COORD:
         case BLIP_CONTACTPOINT:
-            if (LOBYTE(trace[i].m_nBlipSprite) == RADAR_SPRITE_WAYPOINT || DisplayThisBlip(HIBYTE(trace[i].m_nBlipSprite), i) || LOBYTE(trace[i].m_nBlipSprite) != RADAR_SPRITE_NONE)
-                DrawCoordBlip(i, trace[i].m_nBlipSprite != RADAR_SPRITE_NONE);
+            if (LOBYTE(trace[i].m_nRadarSprite) == RADAR_SPRITE_WAYPOINT || DisplayThisBlip(HIBYTE(trace[i].m_nRadarSprite), i) || LOBYTE(trace[i].m_nRadarSprite) != RADAR_SPRITE_NONE)
+                DrawCoordBlip(i, trace[i].m_nRadarSprite != RADAR_SPRITE_NONE);
             break;
         case BLIP_CAR:
         case BLIP_CHAR:
         case BLIP_OBJECT:
         case BLIP_PICKUP:
-            if (DisplayThisBlip(HIBYTE(trace[i].m_nBlipSprite), i) || LOBYTE(trace[i].m_nBlipSprite) != RADAR_SPRITE_NONE)
-                DrawEntityBlip(i, trace[i].m_nBlipSprite != RADAR_SPRITE_NONE);
+            if (DisplayThisBlip(HIBYTE(trace[i].m_nRadarSprite), i) || LOBYTE(trace[i].m_nRadarSprite) != RADAR_SPRITE_NONE)
+                DrawEntityBlip(i, trace[i].m_nRadarSprite != RADAR_SPRITE_NONE);
             break;
         case BLIP_SPOTLIGHT:
         case BLIP_AIRSTRIP:
@@ -566,7 +566,7 @@ void CRadarNew::DrawPickupBlips() {
     if (MenuNew.bDrawMenuMap)
         return;
 
-    for (int i = 0; i < MAX_NUM_PICKUPS; i++) {
+    for (unsigned int i = 0; i < MAX_NUM_PICKUPS; i++) {
         CPickup p = CPickups::aPickUps[i];
         int s = -1;
 
@@ -676,7 +676,7 @@ void CRadarNew::DrawPickupBlips() {
 void CRadarNew::SetBlipSprite(int i, unsigned short icon) {
     int index = CRadar::GetActualBlipArrayIndex(i);
     if (index != -1) {
-        GetRadarTrace()[index].m_nBlipSprite = icon;
+        GetRadarTrace()[index].m_nRadarSprite = icon;
     }
 }
 
@@ -944,7 +944,7 @@ void CRadarNew::LimitPoint(float &x1, float &y1, float x2, float y2, float x3, f
 }
 
 float CRadarNew::LimitRadarPoint(CVector2D& point) {
-    float v1;
+    float v1 = 0.0f;
     float v4;
     float* v6;
     float* v7;
@@ -1456,7 +1456,7 @@ void CRadarNew::DrawMap() {
     if (CPadNew::GetPad(0)->GetExtendRadarRange() && !CellPhone.bActive && !CHud::bDrawingVitalStats)
         m_nRadarRangeExtendTime = CTimer::m_snTimeInMilliseconds + 3000;
 
-    if (m_nRadarRangeExtendTime > CTimer::m_snTimeInMilliseconds) {
+    if (static_cast<unsigned int>(m_nRadarRangeExtendTime) > CTimer::m_snTimeInMilliseconds) {
         radarRange += 100.0f;
         CHud::m_VehicleState = 1;
         CHud::m_ZoneState = 1;
@@ -1667,7 +1667,7 @@ void CRadarNew::DrawGangOverlay(bool force) {
 void CRadarNew::DrawRadarMap(int x, int y) {
     CPed* playa = FindPlayerPed(-1);
 
-    RwCameraEndUpdate(Scene.m_pRwCamera);
+    RwCameraEndUpdate(Scene.m_pCamera);
 
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE, reinterpret_cast<void*>(FALSE));
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, reinterpret_cast<void*>(FALSE));
@@ -1812,7 +1812,7 @@ void CRadarNew::DrawRadarMap(int x, int y) {
 
     RwCameraEndUpdate(m_pCamera);
 
-    RwCameraBeginUpdate(Scene.m_pRwCamera);
+    RwCameraBeginUpdate(Scene.m_pCamera);
 
     RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, reinterpret_cast<void*>(TRUE));
 
@@ -1858,7 +1858,7 @@ void CRadarNew::DrawRadarMap(int x, int y) {
         color[2] = rgb.b / 255.0f;
         color[3] = 3.0f;
 
-        GetD3DDevice()->SetPixelShaderConstantF(0, color, 1);
+        GetD3DDevice<IDirect3DDevice9>()->SetPixelShaderConstantF(0, color, 1);
 
         RwRenderStateSet(rwRENDERSTATETEXTURERASTER, m_pFrameBuffer2);
         _rwD3D9RWSetRasterStage(m_pFrameBuffer2, 0);
@@ -1943,9 +1943,9 @@ void CRadarNew::AddBlipToLegendList(bool trace, int id) {
                 break;
             }
 
-            c = t.m_dwColour;
+            c = t.m_nColour;
             friendly = t.m_bFriendly;
-            pos = t.m_vPosition;
+            pos = t.m_vecPos;
             break;
         }
 

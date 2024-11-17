@@ -20,14 +20,14 @@ enum eOriginalMenuPages {
     NUM_ORIGINAL_MENUPAGES,
 };
 
-enum eMouseType : char {
+enum eMouseVType : char {
     MOUSE_ARROW,
     MOUSE_FUCKU,
     MOUSE_GRAB,
     MOUSE_HAND,
 };
 
-enum eMenuSprites {
+enum eMenuVSprites {
     MENU_MOUSE_ARROW,
     MENU_MOUSE_FUCKU,
     MENU_MOUSE_GRAB,
@@ -50,7 +50,7 @@ enum eMenuSprites {
     NUM_MENU_SPRITES,
 };
 
-enum eMiscSprites {
+enum eMiscVSprites {
     MISC_RECTGRAD,
     MISC_RECTGRADCENTERED,
     MISC_SKIPICON,
@@ -280,7 +280,7 @@ public:
     }
 };
 
-class CMenuScreen {
+class CMenuVHudScreen {
 public:
     char screenName[16];
     CMenuTab Tab[MAX_MENU_TABS];
@@ -366,7 +366,7 @@ public:
     CMenuSettings TempSettings;
     CMenuSettings Settings;
     CMenuBar MenuBar[MAX_MENU_BAR_ITEMS];
-    CMenuScreen MenuScreen[MAX_MENU_SCREENS];
+    CMenuVHudScreen MenuScreen[MAX_MENU_SCREENS];
 
     int NumVideoModes;
     char** VideoModeList;
@@ -453,10 +453,10 @@ public:
     CVector2D vMapBase;
     CVector2D vTempMapBase;
     float fMapZoom;
-    int nMapMoveTime;
+    unsigned int nMapMoveTime;
     bool bMapPlayShot;
 
-    int nMapZoomTime;
+    unsigned int nMapZoomTime;
     bool bShowLegend;
 
     int nTimeForSafeZonesToShow;
@@ -475,11 +475,11 @@ public:
     unsigned short PreviousPlayerControls;
     unsigned short CurrentPlayerControls;
 
-    int nTimePassedSinceLastKeyBind;
+    unsigned int nTimePassedSinceLastKeyBind;
 
     bool bLoadingPage;
     float fLoadingPercentage;
-    int nLoadingTimeInMs;
+    unsigned int nLoadingTimeInMs;
     bool bLoad;
     int nSlot;
 
@@ -509,12 +509,12 @@ public:
     void SetDefaultPageBehaviour();
 
     void AddNewBarItem(char* name, int screen);
-    CMenuScreen* AddNewScreen(char* name);
-    CMenuTab* AddNewTab(CMenuScreen* s, int type, char* tabName, char* actionName, bool full);
+    CMenuVHudScreen* AddNewScreen(char* name);
+    CMenuTab* AddNewTab(CMenuVHudScreen* s, int type, char* tabName, char* actionName, bool full);
     CMenuEntry* AddNewEntry(CMenuTab* t, int type, char* entryName, int x, int y);
 
-    CMenuScreen* GetMenuScreen(char* name);
-    CMenuTab* GetMenuTab(CMenuScreen* s, char* name);
+    CMenuVHudScreen* GetMenuScreen(char* name);
+    CMenuTab* GetMenuTab(CMenuVHudScreen* s, char* name);
     CMenuEntry* GetMenuEntry(CMenuTab* t, char* name);
     CMenuEntry* GetMenuEntry(CMenuTab* t, int i);
 

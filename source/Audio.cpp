@@ -140,7 +140,7 @@ float CAudio::GetVolumeForChunk(int chunk) {
     BASS_SAMPLE info;
     BASS_SampleGetInfo(Chunks[chunk], &info);
     if (HCHANNEL* c = (HCHANNEL*)malloc(info.max * sizeof(HCHANNEL))) {
-        for (int i = 0; i < BASS_SampleGetChannels(Chunks[chunk], c); i++) {
+        for (unsigned i = 0; i < BASS_SampleGetChannels(Chunks[chunk], c); i++) {
             BASS_ChannelGetAttribute(c[i], BASS_ATTRIB_VOL, &volume);
         }
         free(c);
@@ -159,7 +159,7 @@ void CAudio::SetVolumeForChunk(int chunk, float volume) {
     BASS_SAMPLE info;
     BASS_SampleGetInfo(Chunks[chunk], &info);
     if (HCHANNEL* c = (HCHANNEL*)malloc(info.max * sizeof(HCHANNEL))) {
-        for (int i = 0; i < BASS_SampleGetChannels(Chunks[chunk], c); i++) {
+        for (unsigned i = 0; i < BASS_SampleGetChannels(Chunks[chunk], c); i++) {
             BASS_ChannelSetAttribute(c[i], BASS_ATTRIB_VOL, volume * (fChunksVolume * 0.5f));
         }
         free(c);
@@ -175,7 +175,7 @@ void CAudio::StopChunk(int chunk) {
     BASS_SAMPLE info;
     BASS_SampleGetInfo(Chunks[chunk], &info);
     if (HCHANNEL* c = (HCHANNEL*)malloc(info.max * sizeof(HCHANNEL))) {
-        for (int i = 0; i < BASS_SampleGetChannels(Chunks[chunk], c); i++) {
+        for (unsigned i = 0; i < BASS_SampleGetChannels(Chunks[chunk], c); i++) {
             BASS_ChannelSetPosition(c[i], 0, BASS_POS_BYTE);
             BASS_SampleStop(c[i]);
             BASS_ChannelStop(c[i]);

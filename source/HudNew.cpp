@@ -61,8 +61,8 @@ bool CHudNew::bShowMoney;
 bool CHudNew::bShowMoneyDifference;
 int CHudNew::nMoneyFadeAlpha;
 int CHudNew::nMoneyDifferenceFadeAlpha;
-int CHudNew::nTimeToShowMoney;
-int CHudNew::nTimeToShowMoneyDifference;
+unsigned int CHudNew::nTimeToShowMoney;
+unsigned int CHudNew::nTimeToShowMoneyDifference;
 
 bool CHudNew::bShowAmmo;
 int CHudNew::nAmmoFadeAlpha;
@@ -81,7 +81,7 @@ int CHudNew::m_nBigMessageTime2;
 float CHudNew::m_fBigMessageOffset;
 CRGBA CHudNew::m_BigMessageColor;
 char CHudNew::m_SuccessFailedText[2][128];
-int CHudNew::m_nMiddleTopMessageTime;
+unsigned int CHudNew::m_nMiddleTopMessageTime;
 char CHudNew::m_MiddleTopMessage[16][128];
 char CHudNew::m_MiddleTopSubMessage[128];
 
@@ -445,21 +445,21 @@ void CHudNew::Draw() {
             || playa->m_nPedFlags.bIsInTheAir
             || (playa->m_pIntelligence && playa->m_pIntelligence->GetUsingParachute())
             || (playa->m_pIntelligence && playa->m_pIntelligence->GetTaskUseGun())
-            || playa->m_nPedState == PEDSTATE_ON_FIRE
-            || playa->m_nPedState == PEDSTATE_FALL
-            || playa->m_nPedState == PEDSTATE_GETUP
-            || playa->m_nPedState == PEDSTATE_ARREST_PLAYER
-            || playa->m_nPedState == PEDSTATE_DIE
-            || playa->m_nPedState == PEDSTATE_DEAD
-            || playa->m_nPedState == PEDSTATE_CARJACK
-            || playa->m_nPedState == PEDSTATE_DRAGGED_FROM_CAR
-            || playa->m_nPedState == PEDSTATE_ENTER_CAR
-            || playa->m_nPedState == PEDSTATE_EXIT_CAR
-            || playa->m_nPedState == PEDSTATE_STEAL_CAR
-            || playa->m_nPedState == PEDSTATE_AIMGUN
-            || playa->m_nPedState == PEDSTATE_FIGHT
-            || playa->m_nPedState == PEDSTATE_ROCKETLAUNCHER_MODE
-            || playa->m_nPedState == PEDSTATE_SNIPER_MODE
+            || playa->m_ePedState == PEDSTATE_ON_FIRE
+            || playa->m_ePedState == PEDSTATE_FALL
+            || playa->m_ePedState == PEDSTATE_GETUP
+            || playa->m_ePedState == PEDSTATE_ARREST_PLAYER
+            || playa->m_ePedState == PEDSTATE_DIE
+            || playa->m_ePedState == PEDSTATE_DEAD
+            || playa->m_ePedState == PEDSTATE_CARJACK
+            || playa->m_ePedState == PEDSTATE_DRAGGED_FROM_CAR
+            || playa->m_ePedState == PEDSTATE_ENTER_CAR
+            || playa->m_ePedState == PEDSTATE_EXIT_CAR
+            || playa->m_ePedState == PEDSTATE_STEAL_CAR
+            || playa->m_ePedState == PEDSTATE_AIMGUN
+            || playa->m_ePedState == PEDSTATE_FIGHT
+            || playa->m_ePedState == PEDSTATE_ROCKETLAUNCHER_MODE
+            || playa->m_ePedState == PEDSTATE_SNIPER_MODE
             || IsAimingWeapon()
             || CEntryExitManager::ms_exitEnterState > 0) {
             CellPhone.bRequestPhoneClose = true;
@@ -502,14 +502,14 @@ bool CHudNew::IsFirstPersonAiming() {
 void CHudNew::DrawCrosshairs() {
     float x = SCREEN_WIDTH * CCamera::m_f3rdPersonCHairMultX;
     float y = SCREEN_HEIGHT * CCamera::m_f3rdPersonCHairMultY;
-    int modelId = CWeaponInfo::GetWeaponInfo(CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_aWeapons[CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_nActiveWeaponSlot].m_nType, 1)->m_nModelId1;
+    int modelId = CWeaponInfo::GetWeaponInfo(CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_aWeapons[CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_nActiveWeaponSlot].m_eWeaponType, 1)->m_nModelId1;
     float radius = CWorld::Players[CWorld::PlayerInFocus].m_pPed->GetWeaponRadiusOnScreen() * 2.0f;
     bool reloading = CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_aWeapons[CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_nActiveWeaponSlot].m_nState == WEAPONSTATE_RELOADING;
 
     CRect rect;
     CRGBA col;
     CPlayerPed* playa = FindPlayerPed(-1);
-    char* crosshairName = CWeaponSelector::nCrosshairs[playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_nType].name;
+    char* crosshairName = CWeaponSelector::nCrosshairs[playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_eWeaponType].name;
     bool forceForFPS = false;
 
     unsigned int savedShade;
@@ -604,7 +604,7 @@ void CHudNew::DrawCrosshairs() {
                     COverlayLayer::SetEffect(EFFECT_LENS_DISTORTION);
 
                     static int shoot = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_nTotalAmmo;
-                    static int time = 0;
+                    static unsigned int time = 0;
 
                     rect.left = (SCREEN_WIDTH / 2) - SCREEN_COORD(960.0f);
                     rect.right = (SCREEN_WIDTH / 2) + SCREEN_COORD(960.0f);
@@ -644,7 +644,7 @@ ForcedFPSView:
                     int alpha = 255;
                     CRGBA col;
                     static int dotAlpha;
-                    static int alphaTime = 0;
+                    static unsigned int alphaTime = 0;
 
                     if (reloading)
                         alpha = 100;
@@ -815,10 +815,10 @@ void CHudNew::DrawMoneyCounter() {
 void CHudNew::DrawAmmo() {
     CPed* playa = FindPlayerPed(0);
     int slot = playa->m_nActiveWeaponSlot;
-    int weaponType = playa->m_aWeapons[slot].m_nType;
+    int weaponType = playa->m_aWeapons[slot].m_eWeaponType;
     int totalAmmo = playa->m_aWeapons[slot].m_nTotalAmmo;
     int ammoInClip = playa->m_aWeapons[slot].m_nAmmoInClip;
-    int maxAmmoInClip = CWeaponInfo::GetWeaponInfo(playa->m_aWeapons[slot].m_nType, playa->GetWeaponSkill())->m_nAmmoClip;
+    int maxAmmoInClip = CWeaponInfo::GetWeaponInfo(playa->m_aWeapons[slot].m_eWeaponType, playa->GetWeaponSkill())->m_nAmmoClip;
     int ammo, clip;
     char str_ammo[16], str_clip[16];
 
@@ -1140,7 +1140,7 @@ void CHudNew::DrawStats() {
         CFontNew::SetOutline(0.0f);
         CFontNew::SetScale(SCREEN_MULTIPLIER(0.52f), SCREEN_MULTIPLIER(1.24f));
 
-        int wepType = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_nType;
+        int wepType = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_eWeaponType;
         if (wepType == WEAPON_TEC9) {
             wepType = WEAPON_MICRO_UZI;
         }
@@ -1226,7 +1226,7 @@ void CHudNew::DrawWanted() {
     float h = GET_SETTING(HUD_WANTED_STARS).h;
     float spacing = 0.0f;
 
-    for (int i = 0; i < FindPlayerWanted(-1)->MaximumWantedLevel; i++) {
+    for (unsigned int i = 0; i < FindPlayerWanted(-1)->MaximumWantedLevel; i++) {
         WantedSprites[WANTED_STAR_1]->Draw(HUD_RIGHT(x + w + spacing), HUD_Y(y), SCREEN_COORD(w), SCREEN_COORD(h), CRGBA(255, 255, 255, 255));
 
         CRGBA c = GET_SETTING(HUD_WANTED_STARS).col;
@@ -1853,7 +1853,7 @@ void CHudNew::DrawSuccessFailedMessage() {
         else if (CHud::m_BigMessage[0][0] && !strcmp(CHud::m_BigMessage[0], TheText.Get("M_FAIL"))) {
             strcpy(m_SuccessFailedText[0], TextNew.GetText("M_FAIL").text);
 
-            switch (FindPlayerPed(0)->m_nPedState) {
+            switch (FindPlayerPed(0)->m_ePedState) {
             case PEDSTATE_DEAD:
                 strcpy(m_SuccessFailedText[1], TextNew.GetText("WASTED").text);
                 break;
@@ -1874,12 +1874,12 @@ void CHudNew::DrawSuccessFailedMessage() {
         }
     }
     else {
-        if (m_nBigMessageTime2 != -1 && m_nBigMessageTime2 < CTimer::m_snTimeInMilliseconds) {
+        if (m_nBigMessageTime2 != -1 && static_cast<unsigned int>(m_nBigMessageTime2) < CTimer::m_snTimeInMilliseconds) {
             if (m_fBigMessageOffset > -256.0f)
                 m_fBigMessageOffset -= CTimer::ms_fTimeStep * 0.02f * 512.0f;
         }
 
-        if (m_nBigMessageTime < CTimer::m_snTimeInMilliseconds) {
+        if (static_cast<unsigned int>(m_nBigMessageTime) < CTimer::m_snTimeInMilliseconds) {
             m_nBigMessageTime = -1;
             m_nBigMessageTime2 = -1;
             m_bShowSuccessFailed = false;
@@ -2101,7 +2101,7 @@ void CHudNew::DrawWastedBustedText() {
     char* str = NULL;
     static eHudSettings i;
 
-    switch (FindPlayerPed(-1)->m_nPedState) {
+    switch (FindPlayerPed(-1)->m_ePedState) {
         case PEDSTATE_DEAD:
         case PEDSTATE_DIE:
             str = TextNew.GetText("WASTED").text;
@@ -2123,7 +2123,7 @@ void CHudNew::DrawWastedBustedText() {
             break;
     }
 
-    if (m_nBigMessageTime != -1 && m_nBigMessageTime < CTimer::m_snTimeInMilliseconds) {
+    if (m_nBigMessageTime != -1 && static_cast<unsigned int>(m_nBigMessageTime) < CTimer::m_snTimeInMilliseconds) {
         m_bShowWastedBusted = true;
         Audio.PlayChunk(CHUNK_SCREEN_PULSE1, 1.0f);
         m_nBigMessageTime = -1;
@@ -2174,7 +2174,7 @@ void CHudNew::DrawMissionTitle() {
     }
 
     if (m_bShowMissionText) {
-        if (time < CTimer::m_snTimeInMilliseconds) {
+        if (static_cast<unsigned int>(time) < CTimer::m_snTimeInMilliseconds) {
             alpha -= CTimer::ms_fTimeStep * 0.02f * 255.0f;
 
             if (alpha <= 0.0f)

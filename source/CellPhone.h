@@ -98,7 +98,7 @@ public:
     bool bRequestPhoneClose;
     int nCurrentItem;
     int nPreviousItem;
-    int nTimeLastTimePhoneShown;
+    unsigned int nTimeLastTimePhoneShown;
 
 public:
     void Init();

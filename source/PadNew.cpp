@@ -1190,8 +1190,8 @@ bool CPadNew::CycleRadioStationRightJustDown() {
 }
 
 CVector2D CPadNew::GetMouseInput(float mult) {
-    float x = GetPad(0)->NewMouseControllerState.X / (200.0f);
-    float y = GetPad(0)->NewMouseControllerState.Y / (200.0f);
+    float x = GetPad(0)->NewMouseControllerState.x / (200.0f);
+    float y = GetPad(0)->NewMouseControllerState.y / (200.0f);
 
     // Little hack
     x = clamp(x, -1.0f, 1.0f);
@@ -1232,7 +1232,7 @@ bool CPadNew::CheckForControllerInput() {
 }
 
 bool CPadNew::CheckForMouseInput() {
-    return !!NewMouseControllerState.X
+    return !!NewMouseControllerState.x
         || !!NewMouseControllerState.lmb
         || !!NewMouseControllerState.rmb
         || !!NewMouseControllerState.mmb
@@ -1240,7 +1240,7 @@ bool CPadNew::CheckForMouseInput() {
         || !!NewMouseControllerState.wheelDown
         || !!NewMouseControllerState.bmx1
         || !!NewMouseControllerState.bmx2
-        || !!NewMouseControllerState.Z
-        || !!NewMouseControllerState.X
-        || !!NewMouseControllerState.Y;
+        || !!NewMouseControllerState.z
+        || !!NewMouseControllerState.x
+        || !!NewMouseControllerState.y;
 }

@@ -184,7 +184,7 @@ void CCellPhone::ShowHidePhone(bool on, bool force) {
         nPreviousItem = 4;
         bResetAnimation = true;
 
-        playa->m_nSavedWeapon = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_nType;
+        playa->m_nSavedWeapon = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_eWeaponType;
         playa->RemoveWeaponAnims(playa->m_nActiveWeaponSlot, -1000.0f);
         playa->MakeChangesForNewWeapon(WEAPON_UNARMED);
     }
