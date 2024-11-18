@@ -47,6 +47,7 @@ enum eMenuVSprites {
     MENU_MAP_CROSSHAIR_LINE_RIGHT,
     MENU_MAP_CROSSHAIR_LINE_UP,
     MENU_SELECTOR,
+    MENU_SCALE_COMPARISON_FRAME,
     NUM_MENU_SPRITES,
 };
 
@@ -587,6 +588,7 @@ public:
     CVector2D GetMapBaseDefault();
     void DrawLegend();
     void DrawZone();
+    void DrawDistanceMarker();
     void DrawMap();
     void DrawMapCrosshair(float x, float y);
     void DrawPatternBackground(CRect rect, CRGBA col);

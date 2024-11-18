@@ -70,6 +70,7 @@ char* MenuSpritesFileNames[] = {
     "menu_map_crosshair_line_right",
     "menu_map_crosshair_line_up",
     "menu_selector",
+    "size_comparison_frame"
 };
 
 char* MiscSpritesFileNames[] = {
@@ -4428,6 +4429,42 @@ void CMenuNew::DrawLegend() {
     }
 }
 
+void CMenuNew::DrawDistanceMarker() {
+    CRect rect;
+    rect.left = HUD_X(96.0f);
+    rect.top = HUD_BOTTOM(210.0f);
+    rect.right = rect.left + SCREEN_COORD(240.f);
+    rect.bottom = HUD_BOTTOM(170.0f);
+
+    MenuNew.MenuSprites[MENU_SCALE_COMPARISON_FRAME]->Draw(rect, CRGBA(255, 255, 255, 255));
+
+    rect.top = HUD_BOTTOM(170.0f);
+    rect.left = HUD_X(96.0f) + SCREEN_COORD(10.f);
+
+    CFontNew::SetBackground(false);
+    CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
+    CFontNew::SetAlignment(CFontNew::ALIGN_LEFT);
+    CFontNew::SetWrapX(SCREEN_COORD(640.0f));
+    CFontNew::SetFontStyle(CFontNew::FONT_1);
+    CFontNew::SetDropShadow(SCREEN_MULTIPLIER(2.0f));
+    CFontNew::SetOutline(0.0f);
+    CFontNew::SetDropColor(CRGBA(0, 0, 0, 100));
+    CFontNew::SetColor(HudColourNew.GetRGB(HUD_COLOUR_WHITE, 255));
+    CFontNew::SetScale(SCREEN_MULTIPLIER(0.6f), SCREEN_MULTIPLIER(1.2f));
+    CFontNew::PrintString(rect.left, rect.top, "0");
+
+    // Draw the actual value, which scales based on the map zoom.
+    const float ZoomSetDistance = 8800.f - (fMapZoom * 250.f);
+    printf("%f\n", fMapZoom);
+    char str[16];
+    sprintf(str, "%.0fm", ZoomSetDistance);
+
+    rect.left += SCREEN_COORD(220.f);
+
+    CFontNew::SetAlignment(CFontNew::ALIGN_RIGHT);
+    CFontNew::PrintString(rect.left, rect.top, str);
+}
+
 void CMenuNew::DrawZone() {
     CVector2D in;
     CVector2D out;
@@ -4567,6 +4604,7 @@ void CMenuNew::DrawMap() {
         DrawMapCrosshair(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
         DrawLegend();
         DrawZone();
+        DrawDistanceMarker();
     }
 }
 
