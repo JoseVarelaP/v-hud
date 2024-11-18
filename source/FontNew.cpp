@@ -923,6 +923,18 @@ float CFontNew::DrawChar(bool print, bool calc, float x, float y, char c, int st
         if (c >= 'a' && c <= 'z') {
             c = c - ('a' - 'A');
         }
+
+        // Deal with latin characters.
+        switch (c) {
+            case 'ú': c = 'Ú'; break; // ú
+            case 'í': c = 'Í'; break; // í
+            case 'ó': c = 'Ó'; break; // ó
+            case 'é': c = 'É'; break; // é
+            case 'ñ': c = 'Ñ'; break; // ñ
+            case 'á': c = 'Á'; break; // á
+            default:
+                break;
+        }
     }
 
     s[0] = c;

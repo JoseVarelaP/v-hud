@@ -68,6 +68,10 @@ public:
     static bool OpenConsole();
     static void ReadPluginSettings();
 
+    static std::string ConvertCharStreamToUTFString(char* stream);
+    static std::string ConvertCharStreamToUTFString(const char* str);
+
+    static char GetConvertedSymbolForChar(char& c);
 };
 
 // extern int& gGameState;

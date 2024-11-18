@@ -43,6 +43,8 @@ bool VHud::Init() {
 
     ReadPluginSettings();
 
+    std::locale::global(std::locale(""));
+
 #ifdef DEBUG
     OpenConsole();
 #endif
@@ -279,6 +281,58 @@ bool VHud::OpenConsole() {
     freopen("conout$", "w", stderr);
 
     return true;
+}
+
+// ???: Could be very expensive!
+std::string VHud::ConvertCharStreamToUTFString(const char* str) {
+    std::string cr = str;
+
+    for (char& c : cr) {
+        c = GetConvertedSymbolForChar(c);
+    }
+
+    return cr;
+}
+
+char VHud::GetConvertedSymbolForChar(char& c) {
+    const int opcode = static_cast<int>(c);
+
+    switch (opcode) {
+        case -86: return '\u00FA'; // ú
+        case -94: return '\u00ED'; // í
+        case -90: return '\u00F3'; // ó
+        case -98: return '\u00E9'; // é
+        case -81: return '\u00BF'; // ¿
+        case -82: return '\u00F1'; // ñ
+        case -104: return '\u00E1'; // á
+        case 94: return '\u00A1'; // ¡
+        default: return c;
+    }
+}
+
+// ???: expensive! I might change it to directly modify the char instead.
+std::string VHud::ConvertCharStreamToUTFString(char* stream) {
+    char c;
+    std::string converted;
+    //
+    for (unsigned int i = 0; i < 400; i++)
+    {
+        c = stream[i];
+        const int opcode = static_cast<int>(stream[i]);
+
+        // There's no more text to go through.
+        if (opcode == 0)
+            break;
+
+        converted += GetConvertedSymbolForChar(c);
+
+        //printf("%c[%i] ", c, opcode);
+    }
+    // printf("\n");
+
+    // printf("%s ", converted.c_str());
+
+    return converted;
 }
 
 void VHud::ReadPluginSettings() {

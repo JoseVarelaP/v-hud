@@ -1505,7 +1505,9 @@ void CHudNew::DrawSubtitles() {
         CFontNew::SetColor(GET_SETTING(HUD_SUBTITLES).col);
         CFontNew::SetScale(SCREEN_MULTIPLIER(GET_SETTING(HUD_SUBTITLES).w), SCREEN_MULTIPLIER(GET_SETTING(HUD_SUBTITLES).h));
 
-        CFontNew::PrintStringFromBottom(SCREEN_COORD_CENTER_LEFT(GET_SETTING(HUD_SUBTITLES).x), HUD_BOTTOM(GET_SETTING(HUD_SUBTITLES).y), CHud::m_Message);
+        auto str = VHud::ConvertCharStreamToUTFString(CHud::m_Message);
+
+        CFontNew::PrintStringFromBottom(SCREEN_COORD_CENTER_LEFT(GET_SETTING(HUD_SUBTITLES).x), HUD_BOTTOM(GET_SETTING(HUD_SUBTITLES).y), str.c_str());
     }
 }
 
@@ -1713,8 +1715,10 @@ void CHudNew::PrintBigHelpText(int alpha) {
     c = GET_SETTING(HUD_HELP_BOX_TEXT).col;
     CFontNew::SetColor(CRGBA(c.r, c.g, c.b, clamp(alpha, 0, c.a)));
 
+    auto str = VHud::ConvertCharStreamToUTFString(CHud::m_pHelpMessageToPrint);
+
     CFontNew::SetScale(SCREEN_MULTIPLIER(GET_SETTING(HUD_HELP_BOX_TEXT).w), SCREEN_MULTIPLIER(GET_SETTING(HUD_HELP_BOX_TEXT).h));
-    CFontNew::PrintString(HUD_X(GET_SETTING(HUD_HELP_BOX_TEXT).x), HUD_Y(GET_SETTING(HUD_HELP_BOX_TEXT).y), CHud::m_pHelpMessageToPrint);
+    CFontNew::PrintString(HUD_X(GET_SETTING(HUD_HELP_BOX_TEXT).x), HUD_Y(GET_SETTING(HUD_HELP_BOX_TEXT).y), str.c_str());
 }
 
 void CHudNew::DrawOddJobMessage() {

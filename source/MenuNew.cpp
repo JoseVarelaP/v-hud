@@ -4186,9 +4186,11 @@ void CMenuNew::PrintBrief() {
                 brief.m_nNumber[4], brief.m_nNumber[5], gString);
             CMessages::InsertStringInString(gString, brief.m_pString);
 
+            auto gStrString = VHud::ConvertCharStreamToUTFString(gString);
+
             CFontNew::SetTokenToIgnore('N', 'n');
             CFontNew::SetScale(SCREEN_MULTIPLIER(0.6f), SCREEN_MULTIPLIER(1.2f));
-            CFontNew::PrintString(mask.left + SCREEN_COORD(8.0f), mask.top + SCREEN_COORD(4.0f), gString);
+            CFontNew::PrintString(mask.left + SCREEN_COORD(8.0f), mask.top + SCREEN_COORD(4.0f), gStrString.c_str());
             mask.top += SCREEN_COORD(24.0f);
 
             noBrief = false;
@@ -4253,7 +4255,9 @@ void CMenuNew::PrintStats() {
             CSprite2d::DrawRect(CRect(menuTab.left, menuTab.top, menuTab.left + menuTab.right, menuTab.top + menuTab.bottom), menuEntryColor);
 
             CFontNew::SetAlignment(CFontNew::ALIGN_LEFT);
-            CFontNew::PrintString(menuTab.left + SCREEN_COORD(12.0f), menuTab.top + SCREEN_COORD(6.0f), gGxtString);
+            auto GXTStrLabel = VHud::ConvertCharStreamToUTFString(gGxtString);
+            // CFontNew::PrintString(menuTab.left + SCREEN_COORD(12.0f), menuTab.top + SCREEN_COORD(6.0f), strCachedStrings.at(gGxtString).c_str());
+            CFontNew::PrintString(menuTab.left + SCREEN_COORD(12.0f), menuTab.top + SCREEN_COORD(6.0f), GXTStrLabel.c_str());
             
             if (CStats::m_ThisStatIsABarChart) {
                 float x = (menuTab.left + menuTab.right + SCREEN_COORD(-12.0f)) - SCREEN_COORD(237.0f);
@@ -4489,6 +4493,8 @@ void CMenuNew::DrawZone() {
     const char* str = CTheZones::FindSmallestZoneForPosition(pos, false)->GetTranslatedName();
     CFontNew::SetUpperCase(true);
 
+    auto convstr = VHud::ConvertCharStreamToUTFString(str);
+
     CRect rect;
     rect.left = HUD_X(96.0f);
     rect.top = HUD_BOTTOM(132.0f);
@@ -4511,7 +4517,7 @@ void CMenuNew::DrawZone() {
 
     rect.left += SCREEN_COORD(10.0f);
     rect.top += SCREEN_COORD(5.0f);
-    CFontNew::PrintString(rect.left, rect.top, str);
+    CFontNew::PrintString(rect.left, rect.top, convstr.c_str());
     CFontNew::SetUpperCase(false);
 }
 
