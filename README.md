@@ -16,6 +16,20 @@ Project has been made in order to replicate accurately most of the UI elements p
 <img src="https://i.imgur.com/cjXjlXq.png" width="320" height="180"><img src="https://i.imgur.com/i21vjnY.png" width="320" height="180">
 </p>
 
+## Fork goals:
+### Essential
+- [x] Modernize for newer build environments
+- [ ] Support for special symbols
+  - [x] Multilingual UI
+  - [x] Support for GXT parsing (Latin symbols)
+     
+### Additional
+- [ ] Tweak GPS navigation for directions
+- [ ] Add content to the phone
+- [ ] Smooth out GPS coord corner rendering
+- [ ] Add tween animations to cleared/failed screen
+- [ ] Figure out how to animate the shaders
+
 ## System Requirements:
 - Requires 2GB or more of RAM
 - DirectX 9 compatible GPU with Pixel Shader 3.0
@@ -23,7 +37,8 @@ Project has been made in order to replicate accurately most of the UI elements p
 
 ## Compiling:
 Requirements:
- - Visual Studio 2019
+ - Visual Studio 2019/2022
+ - [DirectX 2010 SDK](https://www.microsoft.com/en-US/download/details.aspx?id=6812)
  - [Plugin SDK](https://github.com/DK22Pac/plugin-sdk)
  
 #### Submodules needs to be updated in order to build this project, run the following command after cloning the repository:
