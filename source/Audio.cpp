@@ -22,7 +22,14 @@ const char* ChunksFileNames[] = {
     "td_loading_music",
     "stats_background",
     "wasted_busted",
-    "screen_pulse1"
+    "screen_pulse1",
+    "menu_music_1",
+    "menu_music_2",
+    "menu_music_3",
+    "menu_music_4",
+    "menu_music_5",
+    "menu_music_6",
+    "menu_music_7",
 };
 
 static LateStaticInit InstallHooks([]() {

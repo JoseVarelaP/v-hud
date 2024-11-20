@@ -492,6 +492,12 @@ public:
     char SavedOriginalLeftText[128];
     bool bPopulateOriginals;
 
+    // Used to track the current time before playing the pause music
+    unsigned int m_nPlayMenuMusicTime;
+    bool m_bHasPlayedMenuMusic;
+    float m_fVolumeForMenu;
+    int m_MenuMusicToPlay;
+
 public:
     void Init();
     void Shutdown();

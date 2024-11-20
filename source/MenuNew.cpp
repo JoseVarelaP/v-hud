@@ -256,6 +256,13 @@ void CMenuNew::Init() {
         }
     }
 
+    srand(time(NULL));
+    // Pick a random song for the pause menu.
+    m_MenuMusicToPlay = CHUNK_MENU_MUSIC_LOOP1 + (rand() % NUM_MUSIC_MENU_LOOPS);
+#ifdef DEBUG
+    printf("Selected %i for menu music", CHUNK_MENU_MUSIC_LOOP1 - m_MenuMusicToPlay);
+#endif
+
     ScanGalleryPictures(true);
 
     bInitialised = true;
@@ -404,6 +411,7 @@ void CMenuNew::Clear() {
     }
 
     bPopulateOriginals = true;
+    m_nPlayMenuMusicTime = -1;
 }
 
 void CMenuNew::BuildMenuBar() {
@@ -652,7 +660,7 @@ void CMenuNew::PlayLoadingTune() {
         Audio.SetLoop(false);
 
         bLoadingTuneStarted = true;
-        fLoadingTuneVolume = 1.0f;
+        fLoadingTuneVolume = 0.25f;
     }
 }
 
@@ -936,6 +944,8 @@ void CMenuNew::OpenCloseMenu(bool on) {
         AudioEngine.StopRadio(NULL, 0);
 
         Audio.PlayChunk(CHUNK_MENU_BACK, 1.0f);
+        m_nPlayMenuMusicTime = 1500 + CTimer::m_snTimeInMillisecondsPauseMode;
+        m_bHasPlayedMenuMusic = false;
     }
     else {
         if (VHud::bSAMP) {
@@ -948,6 +958,12 @@ void CMenuNew::OpenCloseMenu(bool on) {
         pad->ClearMouseHistory();
         CurrentPlayerControls = PreviousPlayerControls;
         pad->DisablePlayerControls = PreviousPlayerControls;
+
+        m_bHasPlayedMenuMusic = false;
+        m_nPlayMenuMusicTime = -1;
+        Audio.StopChunk(m_MenuMusicToPlay);
+        m_fVolumeForMenu = 0.f;
+        m_MenuMusicToPlay = CHUNK_MENU_MUSIC_LOOP1 + (rand() % NUM_MUSIC_MENU_LOOPS);
 
         Clear();
     }
@@ -1265,7 +1281,7 @@ void CMenuNew::ProcessGoBack(int input) {
             }
             [[fallthrough]];
         default:
-        def:
+        //def:
             SetInputTypeAndClear(MENUINPUT_BAR, nCurrentBarItem);
             break;
         }
@@ -2606,6 +2622,31 @@ void CMenuNew::Draw() {
         if (bShowMenuExtraText)
             DrawPauseMenuExtraText();
 
+        if (m_nPlayMenuMusicTime < CTimer::m_snTimeInMillisecondsPauseMode && !m_bHasPlayedMenuMusic)
+        {
+            Audio.SetLoop(true);
+            // Start the song completely quiet. We are going to slowly fade this throughout the time.
+            Audio.PlayChunk(m_MenuMusicToPlay, 0.0f);
+            Audio.SetLoop(false);
+            m_bHasPlayedMenuMusic = true;
+        }
+
+        //if (m_bHasPlayedMenuMusic && (fNewVolumeForMenu < (0.6f * FrontEndMenuManager.m_nPrefsMusicVolume) ) 
+        if (m_bHasPlayedMenuMusic && m_fVolumeForMenu < 0.4f)
+        {
+            const float maxVolumeScale = 0.4f;
+
+            m_fVolumeForMenu = (CTimer::m_snTimeInMillisecondsPauseMode - m_nPlayMenuMusicTime) / 20000.f;
+#ifdef DEBUG
+            printf("Menu music volume: %.4f\n", m_fVolumeForMenu);
+#endif
+
+            if (m_fVolumeForMenu > maxVolumeScale)
+                m_fVolumeForMenu = maxVolumeScale;
+
+            Audio.SetVolumeForChunk(m_MenuMusicToPlay, m_fVolumeForMenu);
+        }
+
         if (bShowMenuBar) {
             // Menubar
             CRect menuBar;
@@ -3134,7 +3175,7 @@ void CMenuNew::DrawDefault() {
         // Background rect.
         menuEntry.top += (menuEntry.bottom + GetMenuHorSpacing()) * MenuScreen[nCurrentScreen].Tab[nCurrentTabItem].Entries[0].y;
         static float bb = 0.0f;
-        bb = clamp(bb, 0.0f, (menuEntry.bottom + GetMenuHorSpacing()) * VISIBLE_ENTRIES - 1);
+        bb = clamp(bb, 0.0f, (menuEntry.bottom + GetMenuHorSpacing()) * static_cast<float>(VISIBLE_ENTRIES)-1);
         CSprite2d::DrawRect(CRect(menuEntry.left, menuEntry.top, menuEntry.left + menuEntry.right, menuEntry.top + bb), CRGBA(0, 0, 0, FadeIn(180)));
         bb = std::max((menuEntry.bottom * (GetEntryBackHeight() + 1.f)) + (GetMenuHorSpacing() * (GetEntryBackHeight())), 0.0f);
         //
@@ -3145,7 +3186,7 @@ void CMenuNew::DrawDefault() {
             menuEntry.top -= fMenuEntryScrollOffset;
 
             CRect r = GetMenuEntryRect();
-            r.top += (r.bottom + GetMenuHorSpacing()) * VISIBLE_ENTRIES;
+            r.top += (r.bottom + GetMenuHorSpacing()) * static_cast<float>(VISIBLE_ENTRIES);
             r.top += (r.bottom + GetMenuHorSpacing()) * MenuScreen[nCurrentScreen].Tab[nCurrentTabItem].Entries[0].y;
 
             CSprite2d::DrawRect(CRect(r.left, r.top, r.left + r.right, r.top + r.bottom), CRGBA(0, 0, 0, FadeIn(180)));
