@@ -54,6 +54,7 @@ public:
     CTextRead GetText(const char* str);
     char* UpperCase(const char* s);
     char* LowerCase(const char* s);
+    static bool Replace(std::string& str, const std::string& from, const std::string& to);
 
 private:
     char GetUpperCase(char c);

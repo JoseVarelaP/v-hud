@@ -131,6 +131,8 @@ public:
     static float m_fBigMessageOffset;
     static CRGBA m_BigMessageColor;
     static char m_SuccessFailedText[2][128];
+    static std::string m_MissionCreditHeaderText;
+    static std::string m_FailedMissionReason;
     static unsigned int m_nMiddleTopMessageTime;
     static char m_MiddleTopMessage[16][128];
     static char m_MiddleTopSubMessage[128];

@@ -1845,8 +1845,10 @@ void CHudNew::DrawSuccessFailedMessage() {
 
     if (!m_bShowSuccessFailed) {
         if (CHud::m_BigMessage[0][0] && !strncmp(CHud::m_BigMessage[0], TheText.Get("M_PASS"), 5)) {
-            strcpy(m_SuccessFailedText[0], TextNew.GetText("M_PASS").text);
-            strcpy(m_SuccessFailedText[1], m_LastMissionName);
+            m_MissionCreditHeaderText = TextNew.GetText("M_PASS").text;
+            m_FailedMissionReason = m_LastMissionName;
+            // strcpy(m_SuccessFailedText[0], TextNew.GetText("M_PASS").text);
+            //strcpy(m_SuccessFailedText[1], m_LastMissionName);
             m_BigMessageColor = HudColourNew.GetRGB(HUD_COLOUR_YELLOW, 150);
             m_bShowSuccessFailed = true;
             m_nBigMessageTime = CTimer::m_snTimeInMilliseconds + 5000;
@@ -1867,6 +1869,34 @@ void CHudNew::DrawSuccessFailedMessage() {
             default:
                 m_SuccessFailedText[1][0] = '\0';
                 break;
+
+            if (m_MissionCreditHeaderText.empty())
+            {
+                m_MissionCreditHeaderText = TextNew.GetText("M_FAIL").text;
+                //strcpy(m_SuccessFailedText[0], TextNew.GetText("M_FAIL").text);
+
+                switch (FindPlayerPed(0)->m_ePedState) {
+                case PEDSTATE_DEAD:
+                    //m_FailedMissionReason = TextNew.GetText("WASTED").text;
+                    m_MissionCreditHeaderText = TextNew.GetText("WASTED").text;
+                    //strcpy(m_SuccessFailedText[1], TextNew.GetText("WASTED").text);
+                    break;
+                case PEDSTATE_ARRESTED:
+                    //VHud::ConvertCharStreamToUTFString(TextNew.GetText("BUSTED").text);
+                    //m_FailedMissionReason = TextNew.GetText("BUSTED").text;
+                    m_MissionCreditHeaderText = TextNew.GetText("BUSTED").text;
+                    //strcpy(m_SuccessFailedText[1], TextNew.GetText("BUSTED").text);
+                    break;
+                default:
+                    if (CHud::m_Message[0])
+                    {
+                        auto str = VHud::ConvertCharStreamToUTFString(CHud::m_Message);
+                        // Because the text here contains control codes for coloring the failed text (~r~), we need to remove those on the result.
+                        CTextNew::Replace(str, "~r~", "");
+                        m_FailedMissionReason = str.c_str();
+                    }
+                    break;
+                }
             }
 
             m_BigMessageColor = HudColourNew.GetRGB(HUD_COLOUR_RED, 150);
@@ -1889,6 +1919,7 @@ void CHudNew::DrawSuccessFailedMessage() {
             m_bShowSuccessFailed = false;
             m_SuccessFailedText[0][0] = NULL;
             m_SuccessFailedText[1][0] = NULL;
+            m_FailedMissionReason.clear();
         }
 
         CFontNew::SetBackground(false);
@@ -1912,18 +1943,20 @@ void CHudNew::DrawSuccessFailedMessage() {
 
         DrawSimpleRectGradCentered(left, top1, right, top2, left, bottom1, right, bottom2, CRGBA(0, 0, 0, 150));
 
-        if (m_SuccessFailedText[0][0])
-            CFontNew::PrintString(SCREEN_COORD_CENTER_LEFT(GET_SETTING(HUD_BIG_MESSAGE).x), SCREEN_COORD_CENTER_DOWN(m_fBigMessageOffset + GET_SETTING(HUD_BIG_MESSAGE).y), m_SuccessFailedText[0]);
+        if (!m_MissionCreditHeaderText.empty())
+        {
+            CFontNew::PrintString(SCREEN_COORD_CENTER_LEFT(GET_SETTING(HUD_BIG_MESSAGE).x), SCREEN_COORD_CENTER_DOWN(m_fBigMessageOffset + GET_SETTING(HUD_BIG_MESSAGE).y - 10.f), m_MissionCreditHeaderText.c_str());
+        }
 
         CFontNew::SetDropShadow(0.0f);
         CFontNew::SetOutline(0.0f);
         CFontNew::SetFontStyle(CFontNew::FONT_1);
         CFontNew::SetDropColor(CRGBA(0, 0, 0, 255));
         CFontNew::SetColor(HudColourNew.GetRGB(HUD_COLOUR_WHITE, 255));
-        CFontNew::SetScale(SCREEN_MULTIPLIER(0.9f), SCREEN_MULTIPLIER(1.6f));
+        CFontNew::SetScale(SCREEN_MULTIPLIER(0.7f), SCREEN_MULTIPLIER(1.4f));
 
-        if (m_SuccessFailedText[1][0])
-            CFontNew::PrintString(SCREEN_COORD_CENTER_LEFT(GET_SETTING(HUD_BIG_MESSAGE).x), SCREEN_COORD_CENTER_DOWN(m_fBigMessageOffset + GET_SETTING(HUD_BIG_MESSAGE).y + 114.0f), m_SuccessFailedText[1]);
+        if (!m_FailedMissionReason.empty())
+            CFontNew::PrintString(SCREEN_COORD_CENTER_LEFT(GET_SETTING(HUD_BIG_MESSAGE).x), SCREEN_COORD_CENTER_DOWN(m_fBigMessageOffset + GET_SETTING(HUD_BIG_MESSAGE).y + 104.0f), m_FailedMissionReason.c_str());
     }
 
     SetHUDSafeZone(true);
