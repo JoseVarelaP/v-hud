@@ -1814,7 +1814,7 @@ void CMenuNew::Process() {
 
     if (bStartOrLoadGame) {
         bLoad = true;
-        nSlot = Settings.saveSlot;
+        nSlot = TempSettings.saveSlot;
         SetLoadingPageBehaviour();
         bStartOrLoadGame = false;
     }
@@ -1953,6 +1953,9 @@ void CMenuNew::ProcessMessagesStuff(int enter, int esc, int space, int input) {
         break;
     case MENUMESSAGE_SAVE_GAME:
         if (enter) {
+            CMenuSettings& s = Settings;
+            s.saveSlot = nCurrentEntryItem;
+            s.Save();
             DoStuffBeforeSavingAGame(nCurrentTabItem);
             UnSetMenuMessage();
         }
@@ -5528,7 +5531,7 @@ void CMenuSettings::Load() {
             // Saving and Startup
             if (auto startup = settings.child("startup")) {
                 landingPage = startup.child("LandingPage").attribute("value").as_bool(landingPage);
-                saveSlot = startup.append_child("SaveSlot").append_attribute("value").as_int(saveSlot);
+                saveSlot = startup.child("SaveSlot").attribute("value").as_int(saveSlot);
             }
         }
     }
