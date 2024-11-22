@@ -165,17 +165,17 @@ void VHud::Run() {
         if (bRwInitialized) {
             if (gGameState && !bSAMP) {
                 switch (gGameState) {
-                case 7:
+                case 7: // FrontEnd Idle
                     if (MenuNew.ProcessMenuToGameSwitch(false)) {
                         gGameState = 8;
                         MenuNew.OpenCloseMenu(false);
                     }
                     break;
-                case 8:
+                case 8: // Loading Game
                     MenuNew.fLoadingPercentage = 100.0f;
                     gGameState = 9;
                     break;
-                case 9:
+                case 9: // In Game
                     if (MenuNew.ProcessMenuToGameSwitch(true)) {
                         MenuNew.OpenCloseMenu(false);
                     }

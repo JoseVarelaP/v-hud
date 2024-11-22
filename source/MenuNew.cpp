@@ -1862,16 +1862,42 @@ void CMenuNew::ProcessTabStuff() {
 
 void CMenuNew::DoSettingsBeforeStartingAGame(bool load, int slot) {
     if (load) {
-        if (CGenericGameStorage::CheckSlotDataValid(slot == -1 ? nCurrentEntryItem : slot, false)) {
-            //FrontEndMenuManager.m_bDontDrawFrontEnd = true;
+        const int slotToLoad = (slot == -1 ? nCurrentEntryItem : slot);
+        auto slot = CGenericGameStorage::ms_Slots[slotToLoad];
+#ifdef DEBUG
+        printf("Checking save on slot %i\n", slot);
+        printf("slot %i is %i\n", slotToLoad, slot);
+#endif
+        if (CGenericGameStorage::CheckSlotDataValid(slotToLoad, true)) {
+#ifdef DEBUG
+            printf("slot %i is valid! Loading the data...\n", slotToLoad);
+#endif
             CGame::bMissionPackGame = false;
-            //FrontEndMenuManager.m_bLoadingData = true;
-            FrontEndMenuManager.field_1B3C = false;
+            FrontEndMenuManager.field_1B3C = true;
+
+            // Select the save file and process it.
+            FrontEndMenuManager.m_nCurrentMenuPage = MENUPAGE_CHOOSE_LOAD_SLOT;
+            FrontEndMenuManager.m_nCurrentMenuEntry = slotToLoad+1;
+            FrontEndMenuManager.ProcessMenuOptions(false, NULL, true);
+
+            // Request the game to load it.
+            FrontEndMenuManager.SwitchToNewScreen(MENUPAGE_LOAD_FIRST_SAVE);
+
+            FrontEndMenuManager.ProcessFileActions();
+#ifdef DEBUG
+            printf("Data loaded! Starting\n");
+#endif
         }
         else {
             // Error
             // Start new game
+#ifdef DEBUG
+            printf("Slot %i is invalid?\n", slotToLoad);
+#endif
         }
+#ifdef DEBUG
+        printf("Finished trying to load");
+#endif
     }
 
     FrontEndMenuManager.DoSettingsBeforeStartingAGame();
@@ -1912,8 +1938,13 @@ void CMenuNew::ProcessMessagesStuff(int enter, int esc, int space, int input) {
         break;
     case MENUMESSAGE_LOAD_GAME:
         if (enter) {
+            // Update the save slot in the settings.
+            CMenuSettings& s = Settings;
+            s.saveSlot = nCurrentEntryItem;
+            s.Save();
+
             bLoad = true;
-            nSlot = -1;
+            nSlot = nCurrentEntryItem;
             SetLoadingPageBehaviour();
         }
         else if (esc) {
