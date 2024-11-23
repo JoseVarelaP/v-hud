@@ -120,6 +120,7 @@ public:
     static int m_nDiffMoney;
 
     static int nTargettedEntityDeathTime;
+    static float m_bBNWShaderAlphaScale;
 
     static bool m_bShowMissionText;
     static char m_LastMissionName[128];

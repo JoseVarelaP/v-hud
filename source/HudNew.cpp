@@ -71,6 +71,7 @@ int CHudNew::nTimeToShowAmmoDifference;
 int CHudNew::m_nPreviousMoney;
 int CHudNew::m_nDiffMoney;
 int CHudNew::nTargettedEntityDeathTime;
+float CHudNew::m_bBNWShaderAlphaScale;
 
 bool CHudNew::m_bShowMissionText;
 char CHudNew::m_LastMissionName[128];
@@ -225,6 +226,7 @@ void CHudNew::ReInit() {
 
     m_nDiffMoney = 0;
     nTargettedEntityDeathTime = 0;
+    m_bBNWShaderAlphaScale = 0.f;
 
     m_bShowWastedBusted = false;
     m_bShowSuccessFailed = false;
@@ -723,8 +725,14 @@ ForcedFPSView:
 
                         CRGBA crossCol = HudColourNew.GetRGB(HUD_COLOUR_WHITE, 255);
 
+                        const int timeremaining = nTargettedEntityDeathTime - CTimer::m_snTimeInMilliseconds;
                         if (nTargettedEntityDeathTime < CTimer::m_snTimeInMilliseconds + 400)
                             crossCol = GET_SETTING(HUD_CROSSHAIR_CROSS).col;
+
+                        // Generate fading Black and white effect upon enemy death
+                        m_bBNWShaderAlphaScale = (static_cast<float>(timeremaining) / 800.f);
+                        COverlayLayer::m_fShaderAlpha = m_bBNWShaderAlphaScale;
+                        COverlayLayer::SetEffect(EFFECT_BLACK_N_WHITE_KO);
 
                         CrosshairsSprites[CROSSHAIR_CROSS]->Draw(CRect(x - SCREEN_COORD(w), y - SCREEN_COORD(h), x + SCREEN_COORD(w), y + SCREEN_COORD(h)), crossCol);
                     }

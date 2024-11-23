@@ -5,6 +5,7 @@ enum eOverlayEffect {
     EFFECT_BLUR_COLOR,
     EFFECT_BLUR,
     EFFECT_BLACK_N_WHITE,
+    EFFECT_BLACK_N_WHITE_KO,
     EFFECT_LENS_DISTORTION,
 };
 
@@ -19,6 +20,7 @@ public:
     static void Shutdown();
     static void UpdateFrameBuffer();
     static void RenderEffects();
+    static void RenderBlackAndWhite(CRect& rect, CRGBA& c);
 
 public:
     static void SetEffect(eOverlayEffect e) { CurrentEffect = e; }
@@ -31,6 +33,7 @@ public:
     }
 
     static eOverlayEffect& GetCurrentEffect() { return CurrentEffect; }
+    static float m_fShaderAlpha;
 };
 
 extern void* im2dPixelShader;

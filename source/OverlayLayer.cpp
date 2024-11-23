@@ -19,6 +19,7 @@ COverlayLayer overlayLayer;
 eOverlayEffect COverlayLayer::CurrentEffect;
 float COverlayLayer::fShaderConstant[4];
 bool COverlayLayer::bInitialised = false;
+float COverlayLayer::m_fShaderAlpha = 1.f;
 
 void* overlay_color_fxc;
 void* blur_fxc;
@@ -107,6 +108,19 @@ void COverlayLayer::UpdateFrameBuffer() {
         _rwSetPixelShader(NULL); \
     } while (0); \
 
+void COverlayLayer::RenderBlackAndWhite(CRect &rect, CRGBA &c)
+{
+    if (m_fShaderAlpha > 1.f)
+        m_fShaderAlpha = 1.f;
+    c.a = m_fShaderAlpha; // Dynamically adjust the alpha based on the hud draw loop.
+    for (int i = 0; i < 4; i++)
+        fShaderConstant[i] = m_fShaderAlpha;
+    SetVerticesHelper(rect, black_n_white_fxc, NULL);
+    // Restore shader constants so other shaders don't get affected.
+    for (int i = 0; i < 4; i++)
+        fShaderConstant[i] = 1.f;
+}
+
 void COverlayLayer::RenderEffects() {
     if (CurrentEffect == EFFECT_NONE)
         return;
@@ -143,6 +157,9 @@ void COverlayLayer::RenderEffects() {
     case EFFECT_BLACK_N_WHITE:
         SetVerticesHelper(rect, black_n_white_fxc, NULL);
         SetVerticesHelper(rect, vignette_fxc, NULL);
+        break;
+    case EFFECT_BLACK_N_WHITE_KO:
+        RenderBlackAndWhite(rect, c);
         break;
     case EFFECT_LENS_DISTORTION:
         SetVerticesHelper(rect, crosshair_lens_fxc, NULL);
