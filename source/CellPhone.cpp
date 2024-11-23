@@ -9,6 +9,7 @@
 #include "FontNew.h"
 #include "TextNew.h"
 #include "WeaponSelector.h"
+#include "Audio.h"
 
 #include "CTimer.h"
 #include "CClock.h"
@@ -216,10 +217,12 @@ void CCellPhone::Process() {
     if (nTimeLastTimePhoneShown < CTimer::m_snTimeInMillisecondsPauseMode) {
         if (bActive && pad->GetPhoneHideJustDown()) {
             ShowHidePhone(false);
+            Audio.PlayChunk(PHONE_SFX_DOWN, 1.0f);
             return;
         }
         else if (pad->GetPhoneShowJustDown()) {
             ShowHidePhone(true);
+            Audio.PlayChunk(PHONE_SFX_UP, 1.0f);
             return;
         }
 
@@ -237,6 +240,11 @@ void CCellPhone::Process() {
         bool Right = pad->GetPhoneRightJustDown();
 
         bool Enter = pad->GetPhoneEnterJustDown();
+
+        bool bMovementButtonsWerePressed = (Up || Down || Left || Right);
+
+        if (bMovementButtonsWerePressed)
+            Audio.PlayChunk(PHONE_SFX_SCROLL_OPTION, 1.f);
 
         if (Up) {
             if (nCurrentItem - 3 >= 0 && Apps[nCurrentItem - 3].name[0] != '\0') {
@@ -277,6 +285,7 @@ void CCellPhone::Process() {
             }
         }
         else if (Enter) {
+            Audio.PlayChunk(PHONE_SFX_PICK_OPTION, 1.f);
             ProcessPhoneApp();
         }
     }
@@ -296,6 +305,14 @@ void CCellPhone::ProcessPhoneApp() {
         else {
             MenuNew.SetSavePageBehaviour(false);
         }
+        ShowHidePhone(false, true);
+        break;
+    case CELLPHONE_APP_SETTINGS:
+        if (VHud::bSAMP)
+            return;
+
+        MenuNew.OpenCloseMenu(true);
+
         ShowHidePhone(false, true);
         break;
     }

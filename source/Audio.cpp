@@ -30,6 +30,11 @@ const char* ChunksFileNames[] = {
     "menu_music_5",
     "menu_music_6",
     "menu_music_7",
+    // Phone Sound effects
+    "phone_up",
+    "phone_down",
+    "phone_pick",
+    "phone_move",
 };
 
 static LateStaticInit InstallHooks([]() {
