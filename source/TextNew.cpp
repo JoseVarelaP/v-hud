@@ -59,6 +59,14 @@ void CTextNew::ReadLanguagesFromFile() {
     }
 }
 
+std::wstring CTextNew::readFile(const char* filename)
+{
+    std::wifstream wif(filename);
+    wif.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+    std::wstringstream wss;
+    wss << wif.rdbuf();
+    return wss.str();
+}
 
 bool CTextNew::Replace(std::string& str, const std::string& from, const std::string& to) {
     size_t start_pos = str.find(from);

@@ -55,6 +55,7 @@ public:
     char* UpperCase(const char* s);
     char* LowerCase(const char* s);
     static bool Replace(std::string& str, const std::string& from, const std::string& to);
+    std::wstring readFile(const char* filename);
 
 private:
     char GetUpperCase(char c);
