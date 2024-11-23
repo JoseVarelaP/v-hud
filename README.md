@@ -36,15 +36,23 @@ Project has been made in order to replicate accurately most of the UI elements p
 - Minimum screen resolution: 800x600
 
 ## Compiling:
-Requirements:
+### Requirements:
  - Visual Studio 2019/2022
  - [DirectX 2010 SDK](https://www.microsoft.com/en-US/download/details.aspx?id=6812)
  - [Plugin SDK](https://github.com/DK22Pac/plugin-sdk)
  
-#### Submodules needs to be updated in order to build this project, run the following command after cloning the repository:
+***Submodules needs to be updated in order to build this project, run the following command after cloning the repository:***
  ```
 git submodule update --init --recursive
 ```
+
+### Preparation
+- [Make sure to setup and compile Plugin-SDK's objects before compiling the project](https://github.com/DK22Pac/plugin-sdk/wiki/Set-up-plugin-sdk), otherwise you'll end up with a lot of linker errors!
+- Use `premake.cmd` to generate the project file. It'll be located on the `project_files` folder.
+  - If you're using Visual Studio 2022, upon opening the project it'll ask you to convert it, agree to these changes.
+- Select the build mode to either `DebugSA` or `ReleaseSA` depending on which [objects you compiled for Plugin-SDK](https://github.com/DK22Pac/plugin-sdk/wiki/Set-up-plugin-sdk).
+
+When compiled, the files will output by default to `output/asi/`. You can change this by modifying the project settings to something like `$(GTA_SA_DIR)\`, so it outputs directly on your game install.
 
 ## Download
 Download the latest archive from the [releases](https://github.com/gennariarmando/v-hud/releases) page.
