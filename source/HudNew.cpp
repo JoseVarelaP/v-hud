@@ -47,8 +47,11 @@
 #include "TextureMgr.h"
 #include "resource.h"
 
+#include "extensions/ScriptCommands.h"
+
 #include <d3d9types.h>
 #include <d3d9caps.h>
+#include <locale>
 
 using namespace plugin;
 
@@ -74,14 +77,13 @@ int CHudNew::nTargettedEntityDeathTime;
 float CHudNew::m_bBNWShaderAlphaScale;
 
 bool CHudNew::m_bShowMissionText;
-char CHudNew::m_LastMissionName[128];
+std::string CHudNew::m_LastMissionName;
 bool CHudNew::m_bShowWastedBusted;
 bool CHudNew::m_bShowSuccessFailed;
 int CHudNew::m_nBigMessageTime;
 int CHudNew::m_nBigMessageTime2;
 float CHudNew::m_fBigMessageOffset;
 CRGBA CHudNew::m_BigMessageColor;
-char CHudNew::m_SuccessFailedText[2][128];
 unsigned int CHudNew::m_nMiddleTopMessageTime;
 char CHudNew::m_MiddleTopMessage[16][128];
 char CHudNew::m_MiddleTopSubMessage[128];
@@ -89,6 +91,14 @@ char CHudNew::m_MiddleTopSubMessage[128];
 int CHudNew::m_nCurrentMiddleTopMessage;
 bool CHudNew::m_bShowMiddleTopMessage;
 int CHudNew::m_nMiddleTopMessageIdToSet;
+
+int CHudNew::m_nFailThudSoundTime;
+std::string CHudNew::m_MissionCreditHeaderText;
+std::string CHudNew::m_FailedMissionReason;
+bool CHudNew::m_bShowFailedReason;
+bool CHudNew::m_bDisplayedMissState;
+bool CHudNew::m_bFailedMission;
+std::string CHudNew::m_sLastReadBigMessage;
 
 char CHudNew::m_CurrentLevelName[128];
 int CHudNew::m_nLevelNameState;
@@ -232,9 +242,13 @@ void CHudNew::ReInit() {
     m_bShowSuccessFailed = false;
     m_nBigMessageTime = -1;
     m_nBigMessageTime2 = -1;
+    m_nFailThudSoundTime = -1;
     m_fBigMessageOffset = 0.0f;
-    m_SuccessFailedText[0][0] = NULL;
-    m_SuccessFailedText[1][0] = NULL;
+    m_FailedMissionReason.clear();
+    m_MissionCreditHeaderText.clear();
+    m_bFailedMission = false;
+    m_bDisplayedMissState = false;
+    m_bShowFailedReason = false;
     m_BigMessageColor = { 255, 255, 255, 255 };
 
     m_nMiddleTopMessageTime = 0;
@@ -377,7 +391,7 @@ void CHudNew::Draw() {
             MarkersNew.DrawArrows();
         }
 
-        if (!TheCamera.m_bWideScreenOn && TheCamera.GetScreenFadeStatus() != 2) {
+        if (!TheCamera.m_bWideScreenOn && TheCamera.GetScreenFadeStatus() != 2 && !m_bFailedMission) {
             CWeaponSelector::ProcessWeaponSelector();
             CWeaponSelector::DrawWheel();
             DrawCrosshairs();
@@ -409,7 +423,7 @@ void CHudNew::Draw() {
             DrawStats();
         }
 
-        if (MenuNew.Settings.showHUD) {
+        if (MenuNew.Settings.showHUD && !m_bFailedMission) {
             DrawHelpText();
         }
 
@@ -426,7 +440,7 @@ void CHudNew::Draw() {
             }
         }
 
-        if (CTheScripts::bDrawSubtitlesBeforeFade)
+        if (!m_bFailedMission && CTheScripts::bDrawSubtitlesBeforeFade)
             DrawSubtitles();
 
         DrawOddJobMessage();
@@ -1852,48 +1866,40 @@ void CHudNew::DrawSuccessFailedMessage() {
     SetHUDSafeZone(false);
 
     if (!m_bShowSuccessFailed) {
+
+        // Setup variables until we get an actual respone from BigMessage.
+        // Did the player pass the mission?
         if (CHud::m_BigMessage[0][0] && !strncmp(CHud::m_BigMessage[0], TheText.Get("M_PASS"), 5)) {
             m_MissionCreditHeaderText = TextNew.GetText("M_PASS").text;
             m_FailedMissionReason = m_LastMissionName;
-            // strcpy(m_SuccessFailedText[0], TextNew.GetText("M_PASS").text);
-            //strcpy(m_SuccessFailedText[1], m_LastMissionName);
             m_BigMessageColor = HudColourNew.GetRGB(HUD_COLOUR_YELLOW, 150);
             m_bShowSuccessFailed = true;
             m_nBigMessageTime = CTimer::m_snTimeInMilliseconds + 5000;
             m_nBigMessageTime2 = CTimer::m_snTimeInMilliseconds + 1500;
+            m_nFailThudSoundTime = -1;
             CHud::m_BigMessage[0][0] = '\0';
             Audio.PlayChunk(CHUNK_SCREEN_PULSE1, 1.0f);
         }
-        else if (CHud::m_BigMessage[0][0] && !strcmp(CHud::m_BigMessage[0], TheText.Get("M_FAIL"))) {
-            strcpy(m_SuccessFailedText[0], TextNew.GetText("M_FAIL").text);
+        // Check if the player has failed the mission.
+        else if (CHud::m_BigMessage[0][0] && strcmp(CHud::m_BigMessage[0], TheText.Get("M_FAIL")) == 0 && !m_bDisplayedMissState) {
 
-            switch (FindPlayerPed(0)->m_ePedState) {
-            case PEDSTATE_DEAD:
-                strcpy(m_SuccessFailedText[1], TextNew.GetText("WASTED").text);
-                break;
-            case PEDSTATE_ARRESTED:
-                strcpy(m_SuccessFailedText[1], TextNew.GetText("BUSTED").text);
-                break;
-            default:
-                m_SuccessFailedText[1][0] = '\0';
-                break;
+            // While the game is slowed down, this might reach a state where it will loop itself and play back again
+            // since the actual timescale is affected here too.
+#ifdef DEBUG
+            printf("Setting up Mission State %i\n", m_bDisplayedMissState);
+#endif
+            // TODO: Store the value of this result somewhere else! We can't just copy the string EVERY SINGLE FRAME.
 
             if (m_MissionCreditHeaderText.empty())
             {
                 m_MissionCreditHeaderText = TextNew.GetText("M_FAIL").text;
-                //strcpy(m_SuccessFailedText[0], TextNew.GetText("M_FAIL").text);
 
                 switch (FindPlayerPed(0)->m_ePedState) {
                 case PEDSTATE_DEAD:
-                    //m_FailedMissionReason = TextNew.GetText("WASTED").text;
                     m_MissionCreditHeaderText = TextNew.GetText("WASTED").text;
-                    //strcpy(m_SuccessFailedText[1], TextNew.GetText("WASTED").text);
                     break;
                 case PEDSTATE_ARRESTED:
-                    //VHud::ConvertCharStreamToUTFString(TextNew.GetText("BUSTED").text);
-                    //m_FailedMissionReason = TextNew.GetText("BUSTED").text;
                     m_MissionCreditHeaderText = TextNew.GetText("BUSTED").text;
-                    //strcpy(m_SuccessFailedText[1], TextNew.GetText("BUSTED").text);
                     break;
                 default:
                     if (CHud::m_Message[0])
@@ -1907,12 +1913,26 @@ void CHudNew::DrawSuccessFailedMessage() {
                 }
             }
 
+            const float rate = 0.5f;
+
             m_BigMessageColor = HudColourNew.GetRGB(HUD_COLOUR_RED, 150);
             m_bShowSuccessFailed = true;
-            m_nBigMessageTime = CTimer::m_snTimeInMilliseconds + 5000;
+            m_nBigMessageTime = CTimer::m_snTimeInMilliseconds + (5000 * rate);
             m_nBigMessageTime2 = -1;
-            CHud::m_BigMessage[0][0] = '\0';
-            Audio.PlayChunk(CHUNK_SCREEN_PULSE1, 1.0f);
+            m_nFailThudSoundTime = CTimer::m_snTimeInMilliseconds + (2000 * rate);
+            m_bFailedMission = true;
+
+            // Slow down the game until we restore back.
+            Command<Commands::SET_TIME_SCALE>(rate);
+            Audio.PlayChunk(CHUNK_FAIL_BG_SFX, 1.0f);
+
+            m_bDisplayedMissState = true;
+        }
+
+        // When the header text is no longer the fail text, restore the miss state.
+        if (strcmp(CHud::m_BigMessage[0], TheText.Get("M_FAIL")))
+        {
+            m_bDisplayedMissState = false;
         }
     }
     else {
@@ -1921,14 +1941,26 @@ void CHudNew::DrawSuccessFailedMessage() {
                 m_fBigMessageOffset -= CTimer::ms_fTimeStep * 0.02f * 512.0f;
         }
 
+        if ((static_cast<unsigned int>(m_nFailThudSoundTime) < CTimer::m_snTimeInMilliseconds) && !m_bShowFailedReason) {
+            Audio.PlayChunk(CHUNK_FAIL_THUD_SFX, 1.f);
+            m_bShowFailedReason = true;
+        }
+
         if (static_cast<unsigned int>(m_nBigMessageTime) < CTimer::m_snTimeInMilliseconds) {
             m_nBigMessageTime = -1;
             m_nBigMessageTime2 = -1;
+            m_nFailThudSoundTime = -1;
             m_bShowSuccessFailed = false;
-            m_SuccessFailedText[0][0] = NULL;
-            m_SuccessFailedText[1][0] = NULL;
+            m_bShowFailedReason = false;
+            m_bFailedMission = false;
             m_FailedMissionReason.clear();
+            m_MissionCreditHeaderText.clear();
+            Command<Commands::SET_TIME_SCALE>(1.f);
+            printf("Clear Mission State\n");
         }
+
+        if (m_bFailedMission)
+            COverlayLayer::SetEffect(EFFECT_BLACK_N_WHITE);
 
         CFontNew::SetBackground(false);
         CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
@@ -1942,12 +1974,28 @@ void CHudNew::DrawSuccessFailedMessage() {
         CFontNew::SetColor(m_BigMessageColor);
         CFontNew::SetScale(SCREEN_MULTIPLIER(GET_SETTING(HUD_BIG_MESSAGE).w), SCREEN_MULTIPLIER(GET_SETTING(HUD_BIG_MESSAGE).h));
 
+        if (m_bFailedMission && !m_bShowFailedReason)
+            return;
+
         float left = HUD_X(0.0f);
         float right = HUD_RIGHT(0.0f);
         float top1 = HUD_Y(m_fBigMessageOffset) + SCREEN_COORD_CENTER_Y - HUD_Y(101.0f);
         float bottom1 = HUD_Y(m_fBigMessageOffset) + SCREEN_COORD_CENTER_Y + HUD_Y(72.0f);
         float top2 = HUD_Y(m_fBigMessageOffset) + SCREEN_COORD_CENTER_Y - HUD_Y(143.0f);
         float bottom2 = HUD_Y(m_fBigMessageOffset) + SCREEN_COORD_CENTER_Y + HUD_Y(117.0f);
+
+        int iFadeToBlackAlpha = ((CTimer::m_snTimeInMilliseconds - m_nBigMessageTime) + 1500);
+        float fScaleFadeAlpha = (static_cast<float>(iFadeToBlackAlpha) / 1500.f) * 255.f;
+
+        if (m_bFailedMission)
+        {
+            CRect f;
+            f.top = SCREEN_COORD_TOP(0.f);
+            f.left = SCREEN_COORD_LEFT(0.f);
+            f.right = SCREEN_COORD_RIGHT(0.f);
+            f.bottom = SCREEN_COORD_BOTTOM(0.f);
+            DrawSimpleRect(f, CRGBA(0, 0, 0, static_cast<int>(fScaleFadeAlpha)));
+        }
 
         DrawSimpleRectGradCentered(left, top1, right, top2, left, bottom1, right, bottom2, CRGBA(0, 0, 0, 150));
 
@@ -2172,6 +2220,7 @@ void CHudNew::DrawWastedBustedText() {
         m_bShowWastedBusted = true;
         Audio.PlayChunk(CHUNK_SCREEN_PULSE1, 1.0f);
         m_nBigMessageTime = -1;
+        m_nFailThudSoundTime = -1;
     }
 
     if (m_bShowWastedBusted && str) {
@@ -2208,7 +2257,7 @@ void CHudNew::DrawMissionTitle() {
 
     if (CHud::m_BigMessage[1][0]) {
         if (!m_bShowMissionText) {
-            strcpy(m_LastMissionName, CHud::m_BigMessage[1]);
+            m_LastMissionName = CHud::m_BigMessage[1];
 
             if (time == -1)
                 time = CTimer::m_snTimeInMilliseconds + 4000;
@@ -2243,7 +2292,7 @@ void CHudNew::DrawMissionTitle() {
         CRGBA col = HudColourNew.GetRGB(VHud::Settings.UIMainColor, 255);
         CFontNew::SetColor(CRGBA(col.r, col.g, col.b, alpha));
         CFontNew::SetScale(SCREEN_MULTIPLIER(GET_SETTING(HUD_MISSION_TITLE).w), SCREEN_MULTIPLIER(GET_SETTING(HUD_MISSION_TITLE).h));
-        CFontNew::PrintString(HUD_RIGHT(GET_SETTING(HUD_MISSION_TITLE).x), HUD_BOTTOM(GET_SETTING(HUD_MISSION_TITLE).y), m_LastMissionName);
+        CFontNew::PrintString(HUD_RIGHT(GET_SETTING(HUD_MISSION_TITLE).x), HUD_BOTTOM(GET_SETTING(HUD_MISSION_TITLE).y), m_LastMissionName.c_str());
     } 
     else {
         time = -1;

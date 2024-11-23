@@ -23,6 +23,10 @@ const char* ChunksFileNames[] = {
     "stats_background",
     "wasted_busted",
     "screen_pulse1",
+    // Failed screen
+    "mission_fail_main",
+    "mission_fail_thud",
+    // Menu background music
     "menu_music_1",
     "menu_music_2",
     "menu_music_3",

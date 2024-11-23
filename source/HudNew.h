@@ -123,17 +123,21 @@ public:
     static float m_bBNWShaderAlphaScale;
 
     static bool m_bShowMissionText;
-    static char m_LastMissionName[128];
+    static std::string m_LastMissionName;
 
     static bool m_bShowWastedBusted;
     static bool m_bShowSuccessFailed;
     static int m_nBigMessageTime;
     static int m_nBigMessageTime2;
+    static int m_nFailThudSoundTime;
     static float m_fBigMessageOffset;
     static CRGBA m_BigMessageColor;
-    static char m_SuccessFailedText[2][128];
     static std::string m_MissionCreditHeaderText;
     static std::string m_FailedMissionReason;
+    static std::string m_sLastReadBigMessage;
+    static bool m_bShowFailedReason;
+    static bool m_bDisplayedMissState;
+    static bool m_bFailedMission;
     static unsigned int m_nMiddleTopMessageTime;
     static char m_MiddleTopMessage[16][128];
     static char m_MiddleTopSubMessage[128];

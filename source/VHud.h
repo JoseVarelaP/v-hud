@@ -4,6 +4,7 @@
 #include "plugin.h"
 #include "LateStaticInit.h"
 
+#define RW
 
 #ifdef GTASA
 #define PLAYER_ID 0

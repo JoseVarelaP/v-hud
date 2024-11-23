@@ -12,6 +12,10 @@ enum eChunks {
     CHUNK_STATS_BACKGROUND,
     CHUNK_WASTED_BUSTED,
     CHUNK_SCREEN_PULSE1,
+    // Failed screen
+    CHUNK_FAIL_BG_SFX,
+    CHUNK_FAIL_THUD_SFX,
+    // Menu background music
     CHUNK_MENU_MUSIC_LOOP1,
     CHUNK_MENU_MUSIC_LOOP2,
     CHUNK_MENU_MUSIC_LOOP3,
