@@ -297,7 +297,11 @@ void CCellPhone::ProcessPhoneApp() {
     switch (Apps[nCurrentItem].type) {
     case CELLPHONE_APP_QUICKSAVE:
         if (VHud::bSAMP)
+        {
+            CHud::SetHelpMessage(
+                TextNew.GetText("QSAV_ERR_SAMP").text, true, false, true);
             return;
+        }
 
         if (playa->m_nPedFlags.bInVehicle) {
             CHud::SetHelpMessage(TextNew.GetText("QSAV_ERR").text, true, false, true);

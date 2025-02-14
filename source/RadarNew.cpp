@@ -77,7 +77,7 @@ bool CRadarNew::m_bUseOriginalBlips;
 int CRadarNew::m_nMaxRadarTrace;
 int CRadarNew::m_nTxdStreamingShiftValue;
 
-bool bShowWeaponPickupsOnRadar = false;
+bool bShowWeaponPickupsOnRadar = true;
 
 void* radar_gps_alpha_mask_fxc;
 void* multi_alpha_mask_fxc;
@@ -664,7 +664,7 @@ void CRadarNew::DrawPickupBlips() {
                 RwRenderStateGet(rwRENDERSTATETEXTUREFILTER, &savedFilter);
                 RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERNEAREST);
 
-                AddAnyBlipNoLegend(m_PickupsSprites[s], p.GetPosn(), SCREEN_MULTIPLIER(32.0f * 0.7f), SCREEN_MULTIPLIER(16.0f * 0.7f), M_PI, false,
+                AddAnyBlipNoLegend(m_PickupsSprites[s], p.GetPosn(), SCREEN_MULTIPLIER(32.0f * 1.f), SCREEN_MULTIPLIER(16.0f * 1.f), M_PI, false,
                     HudColourNew.GetRGB(HUD_COLOUR_WHITE, 255), false);
 
                 RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)savedFilter);
@@ -811,7 +811,7 @@ void CRadarNew::TransformRadarPoint(CVector2D& out, CVector2D& in) {
     }
     else {
         out.x = ((((GET_SETTING(HUD_RADAR).h / GET_SETTING(HUD_RADAR).w) * in.x) * (m_vRadarMapQuality.x * 0.5f)) + (m_vRadarMapQuality.x * 0.5f));
-        out.y = ((m_vRadarMapQuality.y * 0.5f) - (m_vRadarMapQuality.y * 0.5f) * in.y);
+        out.y = ((m_vRadarMapQuality.y * 0.5f) - (m_vRadarMapQuality.y * 0.5f) * in.y) + 5.f;
     }
     __asm pop edx
 }
@@ -1353,6 +1353,19 @@ void CRadarNew::DrawRadarRectangle() {
                     (playa2.m_pPed->m_fHealth <= 20.0f && CTimer::m_FrameCounter & 8) ? HudColourNew.GetRGB(HUD_COLOUR_RED, col.a) : col);
             }
         }
+
+        // Just a label for versioning.
+        char* str2 = "V-Hud v0.945-RykeShrk";
+        CFontNew::SetAlignment(CFontNew::ALIGN_LEFT);
+        CFontNew::SetBackground(false);
+        CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
+        CFontNew::SetFontStyle(CFontNew::FONT_1);
+        CFontNew::SetColor(CRGBA(255,255,255,150));
+        CFontNew::SetOutline(0.0f);
+        CFontNew::SetDropShadow(SCREEN_MULTIPLIER(1.0f));
+        CFontNew::SetDropColor(CRGBA(0, 0, 0, 0));
+        CFontNew::SetScale(SCREEN_MULTIPLIER(0.6f), SCREEN_MULTIPLIER(1.2f));
+        CFontNew::PrintString(SCREEN_COORD_LEFT(10.f), SCREEN_COORD_BOTTOM(30.f), str2);
     }
 
     RwRenderStateSet(rwRENDERSTATESHADEMODE, (void*)savedShade);

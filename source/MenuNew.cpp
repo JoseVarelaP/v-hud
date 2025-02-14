@@ -511,7 +511,7 @@ void CMenuNew::BuildMenuScreen() {
             AddNewEntry(startup, MENUENTRY_LANDINGPAGE, "FE_LAND", 0, 0);
         }
 
-        if (VHud::bModLoader) {
+        if (VHud::bModLoader && !VHud::bSAMP) {
             char* mlText = TheText.Get("ML_F0HH");
             if (mlText[0] != '\0') {
                 if (auto modLoader = AddNewTab(settings, MENUENTRY_CHANGETAB, "FE_ML", NULL, false)) {
@@ -589,7 +589,7 @@ void CMenuNew::BuildMenuScreen() {
     }
 
     // MENUSCREEN_MODLOADER_MOD_OPTION
-    if (VHud::bModLoader) {
+    if (VHud::bModLoader && !VHud::bSAMP) {
         char* mlText = TheText.Get("ML_F0HH");
         if (mlText[0] != '\0') {
             if (auto mod = AddNewScreen("FE_SELMOD")) {
@@ -962,8 +962,12 @@ void CMenuNew::OpenCloseMenu(bool on) {
         m_bHasPlayedMenuMusic = false;
         m_nPlayMenuMusicTime = -1;
         Audio.StopChunk(m_MenuMusicToPlay);
+        Audio.StopChunk(CHUNK_MENU_MUSIC_LOOP3);
         m_fVolumeForMenu = 0.f;
         m_MenuMusicToPlay = CHUNK_MENU_MUSIC_LOOP1 + (rand() % NUM_MUSIC_MENU_LOOPS);
+        while (m_MenuMusicToPlay == CHUNK_MENU_MUSIC_LOOP3) {
+            m_MenuMusicToPlay = CHUNK_MENU_MUSIC_LOOP1 + (rand() % NUM_MUSIC_MENU_LOOPS);
+        }
 
         Clear();
     }
@@ -2106,7 +2110,7 @@ void CMenuNew::ProcessEntryStuff(int enter, int input) {
         break;
     case MENUENTRY_STORYMODE:
         bLoad = true;
-        nSlot = 0;
+        nSlot = TempSettings.saveSlot;
         SetLoadingPageBehaviour();
         break;
     case MENUENTRY_SETTINGS:
@@ -2659,6 +2663,8 @@ void CMenuNew::Draw() {
         if (m_nPlayMenuMusicTime < CTimer::m_snTimeInMillisecondsPauseMode && !m_bHasPlayedMenuMusic)
         {
             Audio.SetLoop(true);
+            // The backing track is almost present on all variations of the menu, so bring that over too.
+            Audio.PlayChunk(CHUNK_MENU_MUSIC_LOOP3, 0.0f);
             // Start the song completely quiet. We are going to slowly fade this throughout the time.
             Audio.PlayChunk(m_MenuMusicToPlay, 0.0f);
             Audio.SetLoop(false);
@@ -2679,6 +2685,8 @@ void CMenuNew::Draw() {
                 m_fVolumeForMenu = maxVolumeScale;
 
             Audio.SetVolumeForChunk(m_MenuMusicToPlay, m_fVolumeForMenu);
+            // The backing track is almost present on all variations of the menu, so bring that over too.
+            Audio.SetVolumeForChunk(CHUNK_MENU_MUSIC_LOOP3, m_fVolumeForMenu);
         }
 
         if (bShowMenuBar) {

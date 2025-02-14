@@ -420,7 +420,9 @@ void CHudNew::Draw() {
                     DrawMissionTimers();
                 }
             }
-            DrawStats();
+
+            if(!VHud::bSAMP)
+                DrawStats();
         }
 
         if (MenuNew.Settings.showHUD && !m_bFailedMission) {

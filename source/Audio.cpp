@@ -51,6 +51,7 @@ void CAudio::Init() {
 
     if (!BASS_Init(-1, 44100, 0, RsGlobal.ps->window, NULL)) {
         int code = BASS_ErrorGetCode();
+        Warning("BASS couldn't be loaded! Is there a bass.dll file on the game directory?");
         if (code != BASS_ERROR_ALREADY) {
             return;
         }

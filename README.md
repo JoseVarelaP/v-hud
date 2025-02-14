@@ -28,7 +28,9 @@ Project has been made in order to replicate accurately most of the UI elements p
 - [ ] Add content to the phone
 - [ ] Smooth out GPS coord corner rendering
 - [ ] Add tween animations to cleared/failed screen
-- [ ] Figure out how to animate the shaders
+  - [x] Failed animation tweens
+  - [ ] Cleared animation tweens
+- [x] Figure out how to animate the shaders
 
 ## System Requirements:
 - Requires 2GB or more of RAM
@@ -55,7 +57,7 @@ git submodule update --init --recursive
 When compiled, the files will output by default to `output/asi/`. You can change this by modifying the project settings to something like `$(GTA_SA_DIR)\`, so it outputs directly on your game install.
 
 ## Download
-Download the latest archive from the [releases](https://github.com/gennariarmando/v-hud/releases) page.
+Download the latest archive from the [releases](https://github.com/JoseVarelaP/v-hud/releases/) page.
 
 # Installation:
 #### Installing an ASI Loader:
