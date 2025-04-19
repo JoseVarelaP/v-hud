@@ -21,6 +21,9 @@ RwTexture* CTextureMgr::LoadDDSTextureCB(const char* path, const char* name) {
 	char file[512];
 
 	sprintf(file, "%s\\%s", path, name);
+#if DEBUG
+	printf("LoadDDSTextureCB: Loading %s\n", file);
+#endif
 
 	return RwD3D9DDSTextureRead(file, NULL);
 }

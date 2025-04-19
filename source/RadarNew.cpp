@@ -50,6 +50,7 @@ tRadarTrace* CRadarNew::m_RadarTrace;
 CSprite2d* CRadarNew::m_RadarSprites[NUM_RADAR_SPRITES];
 CSprite2d CRadarNew::m_BlipsSprites[NUM_BLIPS_SPRITES];
 CSprite2d** CRadarNew::m_MiniMapSprites;
+CSprite2d** CRadarNew::m_InteriorMapSprites;
 CSprite2d* CRadarNew::m_PickupsSprites[NUM_PICKUPS_BLIPS_SPRITES];
 CRadarAnim CRadarNew::Anim;
 CVector2D CRadarNew::m_vRadarMapQuality;
@@ -72,6 +73,8 @@ bool CRadarNew::m_bRemoveBlipsLimit;
 int CRadarNew::m_nRadarMapSize;
 char CRadarNew::m_NamePrefix[16];
 char CRadarNew::m_FileFormat[4];
+char CRadarNew::m_IntNamePrefix[16];
+char CRadarNew::m_IntFileFormat[4];
 bool CRadarNew::m_bUseOriginalTiles;
 bool CRadarNew::m_bUseOriginalBlips;
 int CRadarNew::m_nMaxRadarTrace;
@@ -170,15 +173,35 @@ void CRadarNew::Init() {
     }
     else {
         m_MiniMapSprites = new CSprite2d * [RADAR_NUM_TILES * RADAR_NUM_TILES];
+        m_InteriorMapSprites = new CSprite2d * [RADAR_NUM_TILES * RADAR_NUM_TILES];
         for (int i = 0; i < RADAR_NUM_TILES * RADAR_NUM_TILES; i++) {
             char name[32];
             sprintf(name, m_NamePrefix, i);
+            char intname[32];
+            sprintf(intname, m_IntNamePrefix, i);
             m_MiniMapSprites[i] = new CSprite2d();
+            m_InteriorMapSprites[i] = new CSprite2d();
+
+            /*
+            * CHECK: Loading all interior and map data like this can be slow.
+            * Some ways to optimize:
+            * - Make the interior map only render map sectors where there's actual data in them.
+            * 
+            * There's no need to load and render all 143 interior sectors, and the renderer is already clever
+            * enough to just not draw. Probably an unsorted list could do.
+            * 
+            * - Make the interior bits that are loaded dds too.
+            */
 
             if (!faststrcmp(m_FileFormat, "dds"))
                 m_MiniMapSprites[i]->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\map"), name);
             else
                 m_MiniMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\map"), name);
+
+            if (!faststrcmp(m_IntFileFormat, "dds"))
+                m_InteriorMapSprites[i]->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+            else
+                m_InteriorMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
 
             if (m_MiniMapSprites[i] && m_MiniMapSprites[i]->m_pTexture) {
                 int w = m_MiniMapSprites[i]->m_pTexture->raster->width;
@@ -212,28 +235,14 @@ void CRadarNew::Init() {
 
 void CRadarNew::ReloadMapTextures() {
 #if DEBUG
-    int possibleW = 0;
-    int possibleH = 0;
-
     for (int i = 0; i < RADAR_NUM_TILES * RADAR_NUM_TILES; i++) {
         char name[32];
-        sprintf(name, m_NamePrefix, i);
+        sprintf(name, m_IntNamePrefix, i);
 
         if (!faststrcmp(m_FileFormat, "dds"))
-            m_MiniMapSprites[i]->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\map"), name);
+            m_InteriorMapSprites[i]->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), name);
         else
-            m_MiniMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\map"), name);
-
-        if (m_MiniMapSprites[i] && m_MiniMapSprites[i]->m_pTexture) {
-            int w = m_MiniMapSprites[i]->m_pTexture->raster->width;
-            int h = m_MiniMapSprites[i]->m_pTexture->raster->height;
-
-            if (possibleW < w)
-                possibleW = w;
-
-            if (possibleH < h)
-                possibleH = h;
-        }
+            m_InteriorMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
     }
 #endif
 }
@@ -262,9 +271,15 @@ void CRadarNew::Shutdown() {
                 m_MiniMapSprites[i]->Delete();
                 delete m_MiniMapSprites[i];
             }
+
+            if (m_InteriorMapSprites[i]) {
+                m_InteriorMapSprites[i]->Delete();
+                delete m_InteriorMapSprites[i];
+            }
         }
 
         delete[] m_MiniMapSprites;
+        delete[] m_InteriorMapSprites;
     }
 
     for (int i = 0; i < NUM_PICKUPS_BLIPS_SPRITES; i++) {
@@ -328,6 +343,8 @@ void CRadarNew::ReadRadarInfoFromFile() {
 
             strcpy(m_NamePrefix, radar.child("RadarMapNamePrefix").attribute("value").as_string());
             strcpy(m_FileFormat, radar.child("RadarMapFileFormat").attribute("value").as_string());
+            strcpy(m_IntNamePrefix, radar.child("IntRadarMapNamePrefix").attribute("value").as_string());
+            strcpy(m_IntFileFormat, radar.child("IntRadarMapFileFormat").attribute("value").as_string());
         }
     }
 }
@@ -1607,6 +1624,10 @@ void CRadarNew::DrawRadarSection(int x, int y) {
     }
     else {
         CSprite2d* sprite = m_MiniMapSprites[index];
+        auto playa = FindPlayerPed(-1);
+
+        if (playa && playa->m_nAreaCode)
+            sprite = m_InteriorMapSprites[index];
 
         if (sprite && sprite->m_pTexture)
             texture = sprite->m_pTexture;

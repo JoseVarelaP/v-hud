@@ -107,6 +107,7 @@ public:
     static CSprite2d* m_RadarSprites[NUM_RADAR_SPRITES];
     static CSprite2d m_BlipsSprites[NUM_BLIPS_SPRITES];
     static CSprite2d** m_MiniMapSprites;
+    static CSprite2d** m_InteriorMapSprites;
     static CSprite2d* m_PickupsSprites[NUM_PICKUPS_BLIPS_SPRITES];
     static CRadarAnim Anim;
     static CVector2D m_vRadarMapQuality;
@@ -129,6 +130,8 @@ public:
     static int m_nRadarMapSize;
     static char m_NamePrefix[16];
     static char m_FileFormat[4];
+    static char m_IntNamePrefix[16];
+    static char m_IntFileFormat[4];
     static bool m_bUseOriginalTiles;
     static bool m_bUseOriginalBlips;
     static int m_nMaxRadarTrace;

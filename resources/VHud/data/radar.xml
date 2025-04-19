@@ -5,4 +5,6 @@
 	<UseOriginalBlips value="false" />
 	<RadarMapNamePrefix value="radar%02d" />
 	<RadarMapFileFormat value="png" />
+	<IntRadarMapNamePrefix value="radar%02d" />
+	<IntRadarMapFileFormat value="png" />
 </Radar>
