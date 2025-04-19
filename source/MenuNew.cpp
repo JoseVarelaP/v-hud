@@ -1455,7 +1455,7 @@ void CMenuNew::Process() {
     }
 
 #if DEBUG
-    if (Space && Enter) {
+    if (Enter) {
         printf("Reloading map textures!\n");
         CRadarNew::ReloadMapTextures();
     }

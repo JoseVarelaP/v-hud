@@ -184,6 +184,9 @@ void CRadarNew::Init() {
         m_InteriorMapSprites[79] = IntBlockInfo();   // Brthl
         m_InteriorMapSprites[80] = IntBlockInfo();   // StrClub-Lower
 
+        // Smoke's crack palace
+        m_InteriorMapSprites[107] = IntBlockInfo({ 1025, 1030, 1037, 1044, 1048, 1054, 1060, 1065 });
+
 
         for (int i = 0; i < RADAR_NUM_TILES * RADAR_NUM_TILES; i++) {
             char name[32];
@@ -277,9 +280,9 @@ void CRadarNew::ReloadMapTextures() {
     //sprintf(name, m_IntNamePrefix, 36);
     //m_InteriorMapSprites[36]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
 
-    if (m_InteriorMapSprites[36].needsFloorChecking) {
-        for (auto floor : m_InteriorMapSprites[36].floors) {
-            sprintf(name, m_IntNameFloorPrefix, 36, floor.first);
+    if (m_InteriorMapSprites[107].needsFloorChecking) {
+        for (auto floor : m_InteriorMapSprites[107].floors) {
+            sprintf(name, m_IntNameFloorPrefix, 107, floor.first);
             if (!faststrcmp(m_IntFileFormat, "dds"))
                 floor.second->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), name);
             else
