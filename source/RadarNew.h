@@ -99,6 +99,25 @@ struct CRadarLegend {
     CVector pos;
 };
 
+/**
+* Struct responsible for tracking floor information.
+*/
+struct IntBlockInfo {
+    std::map<int, CSprite2d*>    floors;
+    bool    needsFloorChecking;
+    // Singular level, there's no need to do anything.
+    IntBlockInfo() {
+        floors[0] = new CSprite2d;
+        needsFloorChecking = false;
+    }
+    // An array is given, then there's floors to check.
+    IntBlockInfo(std::vector<int> zLevel) {
+        for( auto l : zLevel )
+            floors[l] = new CSprite2d;
+        needsFloorChecking = true;
+    }
+};
+
 struct tRadarTrace;
 class CSprite2d;
 
@@ -108,7 +127,7 @@ public:
     static CSprite2d* m_RadarSprites[NUM_RADAR_SPRITES];
     static CSprite2d m_BlipsSprites[NUM_BLIPS_SPRITES];
     static CSprite2d** m_MiniMapSprites;
-    static std::map<int, CSprite2d*> m_InteriorMapSprites;
+    static std::map<int, IntBlockInfo> m_InteriorMapSprites;
     static CSprite2d* m_PickupsSprites[NUM_PICKUPS_BLIPS_SPRITES];
     static CRadarAnim Anim;
     static CVector2D m_vRadarMapQuality;
@@ -132,6 +151,7 @@ public:
     static char m_NamePrefix[16];
     static char m_FileFormat[4];
     static char m_IntNamePrefix[16];
+    static char m_IntNameFloorPrefix[16];
     static char m_IntFileFormat[4];
     static bool m_bUseOriginalTiles;
     static bool m_bUseOriginalBlips;

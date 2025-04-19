@@ -6,5 +6,6 @@
 	<RadarMapNamePrefix value="radar%02d" />
 	<RadarMapFileFormat value="dds" />
 	<IntRadarMapNamePrefix value="radar%02d" />
+	<IntRadarMapNameFloorPrefix value="radar%02d-floor%02d" />
 	<IntRadarMapFileFormat value="png" />
 </Radar>

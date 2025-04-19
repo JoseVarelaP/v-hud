@@ -50,7 +50,7 @@ tRadarTrace* CRadarNew::m_RadarTrace;
 CSprite2d* CRadarNew::m_RadarSprites[NUM_RADAR_SPRITES];
 CSprite2d CRadarNew::m_BlipsSprites[NUM_BLIPS_SPRITES];
 CSprite2d** CRadarNew::m_MiniMapSprites;
-std::map<int, CSprite2d*> CRadarNew::m_InteriorMapSprites;
+std::map<int, IntBlockInfo> CRadarNew::m_InteriorMapSprites;
 CSprite2d* CRadarNew::m_PickupsSprites[NUM_PICKUPS_BLIPS_SPRITES];
 CRadarAnim CRadarNew::Anim;
 CVector2D CRadarNew::m_vRadarMapQuality;
@@ -74,6 +74,7 @@ int CRadarNew::m_nRadarMapSize;
 char CRadarNew::m_NamePrefix[16];
 char CRadarNew::m_FileFormat[4];
 char CRadarNew::m_IntNamePrefix[16];
+char CRadarNew::m_IntNameFloorPrefix[16];
 char CRadarNew::m_IntFileFormat[4];
 bool CRadarNew::m_bUseOriginalTiles;
 bool CRadarNew::m_bUseOriginalBlips;
@@ -177,11 +178,11 @@ void CRadarNew::Init() {
         
         // TODO: Some interiors have floors. Need to make a struct that can store the floor Z levels to load separate versions
         // of these floors into memory.
-        m_InteriorMapSprites[36] = new CSprite2d;   // Jizzy's Club
-        m_InteriorMapSprites[67] = new CSprite2d;   // LS Gym
-        m_InteriorMapSprites[68] = new CSprite2d;   // StrClub-Top
-        m_InteriorMapSprites[79] = new CSprite2d;   // Brthl
-        m_InteriorMapSprites[80] = new CSprite2d;   // StrClub-Lower
+        m_InteriorMapSprites[36] = IntBlockInfo({906, 911, 917});   // Jizzy's Club
+        m_InteriorMapSprites[67] = IntBlockInfo();   // LS Gym
+        m_InteriorMapSprites[68] = IntBlockInfo();   // StrClub-Top
+        m_InteriorMapSprites[79] = IntBlockInfo();   // Brthl
+        m_InteriorMapSprites[80] = IntBlockInfo();   // StrClub-Lower
 
 
         for (int i = 0; i < RADAR_NUM_TILES * RADAR_NUM_TILES; i++) {
@@ -208,10 +209,24 @@ void CRadarNew::Init() {
                 m_MiniMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\map"), name);
 
             if (auto block = m_InteriorMapSprites.find(i); block != m_InteriorMapSprites.end()) {
-                if (!faststrcmp(m_IntFileFormat, "dds"))
-                    block->second->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
-                else
-                    block->second->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+                // Multiple floors, store each floor level.
+                if (block->second.needsFloorChecking) {
+                    for (auto floor : block->second.floors) {
+                        sprintf(intname, m_IntNameFloorPrefix, i, floor.first);
+                        printf("floor %i: file: %s\n", floor.first, intname);
+                        if (!faststrcmp(m_IntFileFormat, "dds"))
+                            floor.second->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+                        else
+                            floor.second->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+                    }
+                }
+                else {
+                    // Singular floor, there's no need to fetch a lot of info.
+                    if (!faststrcmp(m_IntFileFormat, "dds"))
+                        block->second.floors[0]->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+                    else
+                        block->second.floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+                }
             }
 
             if (m_MiniMapSprites[i] && m_MiniMapSprites[i]->m_pTexture) {
@@ -259,8 +274,18 @@ void CRadarNew::ReloadMapTextures() {
     */
     // Reload for jizzy's bar
     char name[32];
-    sprintf(name, m_IntNamePrefix, 36);
-    m_InteriorMapSprites[36]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+    //sprintf(name, m_IntNamePrefix, 36);
+    //m_InteriorMapSprites[36]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+
+    if (m_InteriorMapSprites[36].needsFloorChecking) {
+        for (auto floor : m_InteriorMapSprites[36].floors) {
+            sprintf(name, m_IntNameFloorPrefix, 36, floor.first);
+            if (!faststrcmp(m_IntFileFormat, "dds"))
+                floor.second->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+            else
+                floor.second->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+        }
+    }
 #endif
 }
 
@@ -292,8 +317,11 @@ void CRadarNew::Shutdown() {
 
         for (auto m : m_InteriorMapSprites)
         {
-            m.second->Delete();
-            delete m.second;
+            for(auto f : m.second.floors)
+            {
+                f.second->Delete();
+                delete f.second;
+            }
         }
 
         delete[] m_MiniMapSprites;
@@ -361,6 +389,7 @@ void CRadarNew::ReadRadarInfoFromFile() {
             strcpy(m_NamePrefix, radar.child("RadarMapNamePrefix").attribute("value").as_string());
             strcpy(m_FileFormat, radar.child("RadarMapFileFormat").attribute("value").as_string());
             strcpy(m_IntNamePrefix, radar.child("IntRadarMapNamePrefix").attribute("value").as_string());
+            strcpy(m_IntNameFloorPrefix, radar.child("IntRadarMapNameFloorPrefix").attribute("value").as_string());
             strcpy(m_IntFileFormat, radar.child("IntRadarMapFileFormat").attribute("value").as_string());
         }
     }
@@ -1648,7 +1677,28 @@ void CRadarNew::DrawRadarSection(int x, int y) {
             // Verify that this area block is actually available.
             if (m_InteriorMapSprites.find(index) != m_InteriorMapSprites.end())
             {
-                sprite = m_InteriorMapSprites[index];
+                auto block = &m_InteriorMapSprites[index];
+                if (block->needsFloorChecking) {
+                    // Check the player's Z position, and change the image based on which one is closest.
+                    const auto pos = static_cast<int>(playa->GetPosition().z);
+                    std::map<int, CSprite2d*>::iterator low, prev;
+                    low = block->floors.lower_bound(pos);
+                    if (low == block->floors.end()) {
+                        sprite = std::prev(low)->second;
+                    } else if (low == block->floors.begin()) {
+                        sprite = block->floors.begin()->second;
+                    }
+                    else {
+                        prev = std::prev(low);
+                        if ((pos - prev->first) < (low->first - pos))
+                            sprite = prev->second;   // Found a texture, use that.
+                        else
+                            sprite = low->second;
+                    }
+                }
+                else {
+                    sprite = block->floors[0];
+                }
             }
             else {
                 return; // Skip the draw entirely.
