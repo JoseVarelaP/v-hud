@@ -50,7 +50,7 @@ tRadarTrace* CRadarNew::m_RadarTrace;
 CSprite2d* CRadarNew::m_RadarSprites[NUM_RADAR_SPRITES];
 CSprite2d CRadarNew::m_BlipsSprites[NUM_BLIPS_SPRITES];
 CSprite2d** CRadarNew::m_MiniMapSprites;
-CSprite2d** CRadarNew::m_InteriorMapSprites;
+std::map<int, CSprite2d*> CRadarNew::m_InteriorMapSprites;
 CSprite2d* CRadarNew::m_PickupsSprites[NUM_PICKUPS_BLIPS_SPRITES];
 CRadarAnim CRadarNew::Anim;
 CVector2D CRadarNew::m_vRadarMapQuality;
@@ -173,14 +173,23 @@ void CRadarNew::Init() {
     }
     else {
         m_MiniMapSprites = new CSprite2d * [RADAR_NUM_TILES * RADAR_NUM_TILES];
-        m_InteriorMapSprites = new CSprite2d * [RADAR_NUM_TILES * RADAR_NUM_TILES];
+        // Asign the areas that interior sprites are available.
+        
+        // TODO: Some interiors have floors. Need to make a struct that can store the floor Z levels to load separate versions
+        // of these floors into memory.
+        m_InteriorMapSprites[36] = new CSprite2d;   // Jizzy's Club
+        m_InteriorMapSprites[67] = new CSprite2d;   // LS Gym
+        m_InteriorMapSprites[68] = new CSprite2d;   // StrClub-Top
+        m_InteriorMapSprites[79] = new CSprite2d;   // Brthl
+        m_InteriorMapSprites[80] = new CSprite2d;   // StrClub-Lower
+
+
         for (int i = 0; i < RADAR_NUM_TILES * RADAR_NUM_TILES; i++) {
             char name[32];
             sprintf(name, m_NamePrefix, i);
             char intname[32];
             sprintf(intname, m_IntNamePrefix, i);
             m_MiniMapSprites[i] = new CSprite2d();
-            m_InteriorMapSprites[i] = new CSprite2d();
 
             /*
             * CHECK: Loading all interior and map data like this can be slow.
@@ -198,10 +207,12 @@ void CRadarNew::Init() {
             else
                 m_MiniMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\map"), name);
 
-            if (!faststrcmp(m_IntFileFormat, "dds"))
-                m_InteriorMapSprites[i]->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
-            else
-                m_InteriorMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+            if (auto block = m_InteriorMapSprites.find(i); block != m_InteriorMapSprites.end()) {
+                if (!faststrcmp(m_IntFileFormat, "dds"))
+                    block->second->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+                else
+                    block->second->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), intname);
+            }
 
             if (m_MiniMapSprites[i] && m_MiniMapSprites[i]->m_pTexture) {
                 int w = m_MiniMapSprites[i]->m_pTexture->raster->width;
@@ -235,15 +246,21 @@ void CRadarNew::Init() {
 
 void CRadarNew::ReloadMapTextures() {
 #if DEBUG
+    /*
     for (int i = 0; i < RADAR_NUM_TILES * RADAR_NUM_TILES; i++) {
         char name[32];
         sprintf(name, m_IntNamePrefix, i);
 
-        if (!faststrcmp(m_FileFormat, "dds"))
+        if (!faststrcmp(m_IntFileFormat, "dds"))
             m_InteriorMapSprites[i]->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\interior"), name);
         else
             m_InteriorMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
     }
+    */
+    // Reload for jizzy's bar
+    char name[32];
+    sprintf(name, m_IntNamePrefix, 36);
+    m_InteriorMapSprites[36]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
 #endif
 }
 
@@ -271,15 +288,15 @@ void CRadarNew::Shutdown() {
                 m_MiniMapSprites[i]->Delete();
                 delete m_MiniMapSprites[i];
             }
+        }
 
-            if (m_InteriorMapSprites[i]) {
-                m_InteriorMapSprites[i]->Delete();
-                delete m_InteriorMapSprites[i];
-            }
+        for (auto m : m_InteriorMapSprites)
+        {
+            m.second->Delete();
+            delete m.second;
         }
 
         delete[] m_MiniMapSprites;
-        delete[] m_InteriorMapSprites;
     }
 
     for (int i = 0; i < NUM_PICKUPS_BLIPS_SPRITES; i++) {
@@ -1627,7 +1644,16 @@ void CRadarNew::DrawRadarSection(int x, int y) {
         auto playa = FindPlayerPed(-1);
 
         if (playa && playa->m_nAreaCode)
-            sprite = m_InteriorMapSprites[index];
+        {
+            // Verify that this area block is actually available.
+            if (m_InteriorMapSprites.find(index) != m_InteriorMapSprites.end())
+            {
+                sprite = m_InteriorMapSprites[index];
+            }
+            else {
+                return; // Skip the draw entirely.
+            }
+        }
 
         if (sprite && sprite->m_pTexture)
             texture = sprite->m_pTexture;

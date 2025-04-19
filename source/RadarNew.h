@@ -9,6 +9,7 @@
 #define RADAR_NUM_TILES (RADAR_SIZE / RADAR_TILE_SIZE)
 
 #include "CSprite2d.h"
+#include <map>
 
 extern void* radar_gps_alpha_mask_fxc;
 extern void* multi_alpha_mask_fxc;
@@ -107,7 +108,7 @@ public:
     static CSprite2d* m_RadarSprites[NUM_RADAR_SPRITES];
     static CSprite2d m_BlipsSprites[NUM_BLIPS_SPRITES];
     static CSprite2d** m_MiniMapSprites;
-    static CSprite2d** m_InteriorMapSprites;
+    static std::map<int, CSprite2d*> m_InteriorMapSprites;
     static CSprite2d* m_PickupsSprites[NUM_PICKUPS_BLIPS_SPRITES];
     static CRadarAnim Anim;
     static CVector2D m_vRadarMapQuality;
