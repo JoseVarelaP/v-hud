@@ -133,10 +133,12 @@ public:
     static bool m_bUseOriginalBlips;
     static int m_nMaxRadarTrace;
     static int m_nTxdStreamingShiftValue;
+    // static float m_fRadarTileSize;
 
 public:
     static void InitBeforeGame();
     static void Init();
+    static void ReloadMapTextures();
     static void Shutdown();
     static void Clear();
     static void ReadBlipsFromFile();

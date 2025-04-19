@@ -732,6 +732,8 @@ CMenuVHudScreen* CMenuNew::AddNewScreen(char* name) {
         s->AddScreen(name);
         return s;
     }
+
+    return nullptr;
 }
 
 CMenuVHudScreen* CMenuNew::GetMenuScreen(char* name) {
@@ -742,6 +744,8 @@ CMenuVHudScreen* CMenuNew::GetMenuScreen(char* name) {
             !faststrcmp(s->screenName, name))
             return s;
     }
+
+    return nullptr;
 }
 
 CMenuTab* CMenuNew::GetMenuTab(CMenuVHudScreen* s, char* name) {
@@ -752,6 +756,8 @@ CMenuTab* CMenuNew::GetMenuTab(CMenuVHudScreen* s, char* name) {
             !faststrcmp(t->tabName, name))
             return t;
     }
+
+    return nullptr;
 }
 
 CMenuEntry* CMenuNew::GetMenuEntry(CMenuTab* t, char* name) {
@@ -762,6 +768,7 @@ CMenuEntry* CMenuNew::GetMenuEntry(CMenuTab* t, char* name) {
             !faststrcmp(e->entryName, name))
             return e;
     }
+    return nullptr;
 }
 
 CMenuEntry* CMenuNew::GetMenuEntry(CMenuTab* t, int i) {
@@ -779,6 +786,8 @@ CMenuTab* CMenuNew::AddNewTab(CMenuVHudScreen* s, int type, char* tabName, char*
         t->AddTab(type, tabName, actionName, full);
         return t;
     }
+
+    return nullptr;
 }
 
 CMenuEntry* CMenuNew::AddNewEntry(CMenuTab* t, int type, char* entryName, int x, int y) {
@@ -791,6 +800,8 @@ CMenuEntry* CMenuNew::AddNewEntry(CMenuTab* t, int type, char* entryName, int x,
         e->AddEntry(type, entryName, x, y);
         return e;
     }
+
+    return nullptr;
 }
 
 void CMenuNew::SetInputTypeAndClear(int input, int n) {
@@ -1442,6 +1453,13 @@ void CMenuNew::Process() {
             Down = Left;
         }
     }
+
+#if DEBUG
+    if (Space && Enter) {
+        printf("Reloading map textures!\n");
+        CRadarNew::ReloadMapTextures();
+    }
+#endif
 
     if (bMenuActive) {
         if (!bLoadingPage) {

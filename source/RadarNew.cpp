@@ -76,6 +76,7 @@ bool CRadarNew::m_bUseOriginalTiles;
 bool CRadarNew::m_bUseOriginalBlips;
 int CRadarNew::m_nMaxRadarTrace;
 int CRadarNew::m_nTxdStreamingShiftValue;
+// float CRadarNew::m_fRadarTileSize = 500.f;
 
 bool bShowWeaponPickupsOnRadar = true;
 
@@ -207,6 +208,34 @@ void CRadarNew::Init() {
     simple_alpha_mask_fxc = CreatePixelShaderFromResource(IDR_SIMPLE_MASK);
 
     m_bInitialised = true;
+}
+
+void CRadarNew::ReloadMapTextures() {
+#if DEBUG
+    int possibleW = 0;
+    int possibleH = 0;
+
+    for (int i = 0; i < RADAR_NUM_TILES * RADAR_NUM_TILES; i++) {
+        char name[32];
+        sprintf(name, m_NamePrefix, i);
+
+        if (!faststrcmp(m_FileFormat, "dds"))
+            m_MiniMapSprites[i]->m_pTexture = CTextureMgr::LoadDDSTextureCB(PLUGIN_PATH("VHud\\map"), name);
+        else
+            m_MiniMapSprites[i]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\map"), name);
+
+        if (m_MiniMapSprites[i] && m_MiniMapSprites[i]->m_pTexture) {
+            int w = m_MiniMapSprites[i]->m_pTexture->raster->width;
+            int h = m_MiniMapSprites[i]->m_pTexture->raster->height;
+
+            if (possibleW < w)
+                possibleW = w;
+
+            if (possibleH < h)
+                possibleH = h;
+        }
+    }
+#endif
 }
 
 void CRadarNew::Shutdown() {
@@ -1709,7 +1738,7 @@ void CRadarNew::DrawRadarMap(int x, int y) {
 
     StreamRadarSection(x, y);
 
-    if (playa && !playa->m_nAreaCode) {
+    if (playa) {
         DrawRadarSection(x - 1, y - 1);
         DrawRadarSection(x, y - 1);
         DrawRadarSection(x + 1, y - 1);

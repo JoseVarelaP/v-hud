@@ -843,7 +843,7 @@ void CHudNew::DrawAmmo() {
     int totalAmmo = playa->m_aWeapons[slot].m_nTotalAmmo;
     int ammoInClip = playa->m_aWeapons[slot].m_nAmmoInClip;
     int maxAmmoInClip = CWeaponInfo::GetWeaponInfo(playa->m_aWeapons[slot].m_eWeaponType, playa->GetWeaponSkill())->m_nAmmoClip;
-    int ammo, clip;
+    //int ammo, clip;
     char str_ammo[16], str_clip[16];
 
     if (maxAmmoInClip <= 1 || maxAmmoInClip >= 1000) {

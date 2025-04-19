@@ -111,7 +111,7 @@ void CTextNew::Load() {
         for (std::wstring line; std::getline(langFile, line);) {
             char str[16]; // Enumerator to load from
             char* text; // Value of said enumerator.
-            int r, g, b, a;
+            //int r, g, b, a;
             std::string strfmt(line.begin(), line.end());
 
             if (!line[0] || line[0] == '#' || line[0] == '[' || line[0] == ';')
