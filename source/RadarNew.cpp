@@ -566,6 +566,11 @@ void CRadarNew::DrawBlips() {
 
         // Draw radar centre.
         CVector2D centreWorld = FindPlayerCentreOfWorld_NoInteriorShift(-1);
+
+        CPed* playa = FindPlayerPed(-1);
+        if (playa->m_nAreaCode)
+            centreWorld = FindPlayerCentreOfWorld(-1);
+
         TransformRealWorldPointToRadarSpace(in, centreWorld);
         LimitRadarPoint(in);
         TransformRadarPointToScreenSpace(out, in);
@@ -1488,8 +1493,8 @@ void CRadarNew::DrawMap() {
     float radarShift = 25.0f;
     CPed* playa = FindPlayerPed(-1);
 
-    if (playa->m_nAreaCode)
-        radarRange = 30.0f;
+    if (playa->m_nAreaCode) // We're inside.
+        radarRange = 17.0f;
 
     if (m_b3dRadar) {
         radarRange += 50.0f;
@@ -1525,7 +1530,7 @@ void CRadarNew::DrawMap() {
     radarShift = Is3dRadar() ? radarShift * (1.5f) : radarShift;
     radarShift *= CRadar::m_radarRange / 50.0f;
 
-    CVector centreOfWorld = FindPlayerCentreOfWorld_NoInteriorShift(0);
+    CVector centreOfWorld = FindPlayerCentreOfWorld_NoSniperShift(0);
     float a = CRadar::m_fRadarOrientation - M_PI_2;
     float c = cosf(a);
     float s = sinf(a);

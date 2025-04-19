@@ -64,6 +64,9 @@ RwTexture* CTextureMgr::LoadPNGTextureCB(const char* path, const char* name) {
 	RwTexture* texture = NULL;
 
 	sprintf(file, "%s\\%s.png", path, name);
+#if DEBUG
+	printf("LoadPNGTextureCB: Loading %s\n", file);
+#endif
 
 	if (file && FileCheck(file)) {
 		if (RwImage* img = RtPNGImageRead(file)) {
