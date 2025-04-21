@@ -4445,7 +4445,7 @@ void CMenuNew::DrawLegend() {
     float biggestWidth = 0.0f;
     for (int i = 0; i < CRadarNew::m_nMapLegendBlipCount; i++) {
         int id = CRadarNew::m_MapLegendBlipList[i].id;
-        unsigned int c = CRadarNew::m_MapLegendBlipList[i].col;
+        auto c = CRadarNew::m_MapLegendBlipList[i].col;
         int f = CRadarNew::m_MapLegendBlipList[i].friendly;
         char* str = NULL;
         CRGBA col;

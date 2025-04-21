@@ -65,16 +65,16 @@ enum ePickupsBlipsSprites {
     NUM_PICKUPS_BLIPS_SPRITES,
 };
 
-enum eRadarTraceColour {
-    TRACE_COLOUR_RED,
-    TRACE_COLOUR_GREEN,
-    TRACE_COLOUR_BLUE,
-    TRACE_COLOUR_WHITE,
-    TRACE_COLOUR_YELLOW,
-    TRACE_COLOUR_PURPLE,
-    TRACE_COLOUR_CYAN,
-    TRACE_COLOUR_THREAT,     
-    TRACE_COLOUR_DESTINATION
+enum class RadarTraceColour {
+    Red = 0,
+    Green,
+    Blue,
+    White,
+    Yellow,
+    Purple,
+    Cyan,
+    Threat,     
+    Destination
 };
 
 class CBlip {
@@ -93,7 +93,7 @@ class CHudSetting;
 
 struct CRadarLegend {
     int id;
-    unsigned int col;
+    RadarTraceColour col;
     bool friendly;
     int sprite;
     CVector pos;
@@ -208,7 +208,7 @@ public:
     static bool IsPlayerInVehicle();
     static bool Is3dRadar();
     static void SetBlipSprite(int i, unsigned short icon);
-    static unsigned int GetRadarTraceColour(unsigned int c, bool bright, bool friendly);
+    static unsigned int GetRadarTraceColour(RadarTraceColour c, bool bright, bool friendly);
     static int*& GetRadarTexturesSlot();
     static tRadarTrace*& GetRadarTrace();
     static int& GetMaxRadarTrace();

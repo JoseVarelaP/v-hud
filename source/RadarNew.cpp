@@ -181,6 +181,7 @@ void CRadarNew::Init() {
         m_InteriorMapSprites[36] = IntBlockInfo({906, 911, 917});   // Jizzy's Club
         m_InteriorMapSprites[67] = IntBlockInfo();   // LS Gym
         m_InteriorMapSprites[68] = IntBlockInfo();   // StrClub-Top
+        m_InteriorMapSprites[78] = IntBlockInfo();   // Binco
         m_InteriorMapSprites[79] = IntBlockInfo();   // Brthl
         m_InteriorMapSprites[80] = IntBlockInfo();   // StrClub-Lower
 
@@ -289,6 +290,10 @@ void CRadarNew::ReloadMapTextures() {
                 floor.second->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
         }
     }
+
+    sprintf(name, m_IntNamePrefix, 78);
+    m_InteriorMapSprites[78].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+    m_InteriorMapSprites[78].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
 #endif
 }
 
@@ -453,37 +458,37 @@ void CRadarNew::DestroyCamera() {
     }
 }
 
-unsigned int CRadarNew::GetRadarTraceColour(unsigned int c, bool bright, bool friendly) {
+unsigned int CRadarNew::GetRadarTraceColour(RadarTraceColour c, bool bright, bool friendly) {
     CRGBA color;
     switch (c) {
-    case TRACE_COLOUR_RED:
+    case RadarTraceColour::Red:
         color = HudColourNew.GetRGB(HUD_COLOUR_RED, 255);
         break;
-    case TRACE_COLOUR_GREEN:
+    case RadarTraceColour::Green:
         color = HudColourNew.GetRGB(HUD_COLOUR_GREEN, 255);
         break;
-    case TRACE_COLOUR_BLUE:
+    case RadarTraceColour::Blue:
         color = HudColourNew.GetRGB(HUD_COLOUR_BLUEDARK, 255);
         break;
-    case TRACE_COLOUR_WHITE:
+    case RadarTraceColour::White:
         color = HudColourNew.GetRGB(HUD_COLOUR_WHITE, 255);
         break;
-    case TRACE_COLOUR_YELLOW:
+    case RadarTraceColour::Yellow:
         color = HudColourNew.GetRGB(HUD_COLOUR_YELLOW, 255);
         break;
-    case TRACE_COLOUR_PURPLE:
+    case RadarTraceColour::Purple:
         color = HudColourNew.GetRGB(HUD_COLOUR_PURPLE, 255);
         break;
-    case TRACE_COLOUR_CYAN:
+    case RadarTraceColour::Cyan:
         color = HudColourNew.GetRGB(HUD_COLOUR_BLUELIGHT, 255);
         break;
-    case TRACE_COLOUR_THREAT:
+    case RadarTraceColour::Threat:
         if (friendly)
             color = HudColourNew.GetRGB(HUD_COLOUR_BLUE, 255);
         else
             color = HudColourNew.GetRGB(HUD_COLOUR_RED, 255);
         break;
-    case TRACE_COLOUR_DESTINATION:
+    case RadarTraceColour::Destination:
     default:
         color = HudColourNew.GetRGB(HUD_COLOUR_YELLOW, 255);
         break;
@@ -606,8 +611,11 @@ void CRadarNew::DrawBlips() {
     if (bShowWeaponPickupsOnRadar)
         DrawPickupBlips();
 
+    const auto playa = FindPlayerPed(-1);
     if (MenuNew.bDrawMenuMap) {
         CVector2D in = FindPlayerCentreOfWorld_NoInteriorShift(0);
+        if (playa->m_nAreaCode)
+            in = FindPlayerCentreOfWorld(-1);
         CVector2D out;
         TransformRealWorldPointToRadarSpace(out, in);
         in = out;
@@ -633,7 +641,6 @@ void CRadarNew::DrawBlips() {
         // Draw radar centre.
         CVector2D centreWorld = FindPlayerCentreOfWorld_NoInteriorShift(-1);
 
-        CPed* playa = FindPlayerPed(-1);
         if (playa->m_nAreaCode)
             centreWorld = FindPlayerCentreOfWorld(-1);
 
@@ -1455,7 +1462,7 @@ void CRadarNew::DrawRadarRectangle() {
         }
 
         // Just a label for versioning.
-        char* str2 = "V-Hud v0.945-RykeShrk";
+        char* str2 = "V-Hud v0.960-RykeShrk";
         CFontNew::SetAlignment(CFontNew::ALIGN_LEFT);
         CFontNew::SetBackground(false);
         CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
@@ -1560,7 +1567,7 @@ void CRadarNew::DrawMap() {
     CPed* playa = FindPlayerPed(-1);
 
     if (playa->m_nAreaCode) // We're inside.
-        radarRange = 17.0f;
+        radarRange = 12.0f;
 
     if (m_b3dRadar) {
         radarRange += 50.0f;
@@ -1612,6 +1619,7 @@ void CRadarNew::DrawRadarSectionMap(int x, int y, CRect const& rect, CRGBA const
     RwTexture* texture = NULL;
 
     index = clamp(index, 0, (RADAR_NUM_TILES * RADAR_NUM_TILES) - 1);
+    const auto playa = FindPlayerPed(-1);
 
     if (m_bUseOriginalTiles) {
         int r = GetRadarTexturesSlot()[index];
@@ -1624,13 +1632,52 @@ void CRadarNew::DrawRadarSectionMap(int x, int y, CRect const& rect, CRGBA const
     else {
         CSprite2d* sprite = m_MiniMapSprites[index];
 
+        // The player is currently in an interior, so we must render the other version.
+        if (playa && playa->m_nAreaCode)
+        {
+            // Verify that this area block is actually available.
+            if (m_InteriorMapSprites.find(index) != m_InteriorMapSprites.end())
+            {
+                auto block = &m_InteriorMapSprites[index];
+                if (block->needsFloorChecking) {
+                    // Check the player's Z position, and change the image based on which one is closest.
+                    const auto pos = static_cast<int>(playa->GetPosition().z);
+                    std::map<int, CSprite2d*>::iterator low, prev;
+                    low = block->floors.lower_bound(pos);
+                    if (low == block->floors.end()) {
+                        sprite = std::prev(low)->second;
+                    }
+                    else if (low == block->floors.begin()) {
+                        sprite = block->floors.begin()->second;
+                    }
+                    else {
+                        prev = std::prev(low);
+                        if ((pos - prev->first) < (low->first - pos))
+                            sprite = prev->second;   // Found a texture, use that.
+                        else
+                            sprite = low->second;
+                    }
+                }
+                else {
+                    sprite = block->floors[0];
+                }
+            }
+            else {
+                return; // Skip the draw entirely.
+            }
+        }
+
         if (sprite && sprite->m_pTexture)
             texture = sprite->m_pTexture;
     }
 
     bool inBounds = (x >= 0 && x <= RADAR_NUM_TILES - 1) && (y >= 0 && y <= RADAR_NUM_TILES - 1);
 
-    RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERMIPLINEAR);
+    if (playa && playa->m_nAreaCode)
+        RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERMIPNEAREST);
+    else
+        RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERMIPLINEAR);
+
     RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
     RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
     RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
@@ -1673,8 +1720,9 @@ void CRadarNew::DrawRadarSection(int x, int y) {
     }
     else {
         CSprite2d* sprite = m_MiniMapSprites[index];
-        auto playa = FindPlayerPed(-1);
+        const auto playa = FindPlayerPed(-1);
 
+        // The player is currently in an interior, so we must render the other version.
         if (playa && playa->m_nAreaCode)
         {
             // Verify that this area block is actually available.
@@ -1915,6 +1963,7 @@ void CRadarNew::DrawRadarMap(int x, int y) {
 
     RwCameraEndUpdate(m_pCamera);
 
+    // ???: What are these variable names?
     float _u3, _u4;
     float _rhw[2];
 
@@ -2061,7 +2110,7 @@ void CRadarNew::ShowRadarTraceWithHeight(float x, float y, unsigned int size, un
 }
 
 void CRadarNew::AddBlipToLegendList(bool trace, int id) {
-    unsigned int c = TRACE_COLOUR_WHITE;
+    auto c = RadarTraceColour::White;
     bool friendly = true;
     CVector pos = {};
 
@@ -2090,7 +2139,7 @@ void CRadarNew::AddBlipToLegendList(bool trace, int id) {
                 break;
             }
 
-            c = t.m_nColour;
+            c = static_cast<RadarTraceColour>(t.m_nColour);
             friendly = t.m_bFriendly;
             pos = t.m_vecPos;
             break;
