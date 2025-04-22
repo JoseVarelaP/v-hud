@@ -179,10 +179,12 @@ void CRadarNew::Init() {
         // TODO: Some interiors have floors. Need to make a struct that can store the floor Z levels to load separate versions
         // of these floors into memory.
         m_InteriorMapSprites[36] = IntBlockInfo({906, 911, 917});   // Jizzy's Club
+        m_InteriorMapSprites[61] = IntBlockInfo();   // Zero's shop
         m_InteriorMapSprites[67] = IntBlockInfo();   // LS Gym
         m_InteriorMapSprites[68] = IntBlockInfo();   // StrClub-Top
         m_InteriorMapSprites[78] = IntBlockInfo();   // Binco
         m_InteriorMapSprites[79] = IntBlockInfo();   // Brthl
+        m_InteriorMapSprites[106] = IntBlockInfo();   // Safe House
         m_InteriorMapSprites[80] = IntBlockInfo();   // StrClub-Lower
 
         // Smoke's crack palace
@@ -291,9 +293,9 @@ void CRadarNew::ReloadMapTextures() {
         }
     }
 
-    sprintf(name, m_IntNamePrefix, 78);
-    m_InteriorMapSprites[78].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
-    m_InteriorMapSprites[78].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+    sprintf(name, m_IntNamePrefix, 61);
+    m_InteriorMapSprites[61].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+    m_InteriorMapSprites[61].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
 #endif
 }
 
@@ -1663,7 +1665,12 @@ void CRadarNew::DrawRadarSectionMap(int x, int y, CRect const& rect, CRGBA const
                 }
             }
             else {
+#if DEBUG
+                // For debugging, let's render out the normal map so we can find out what area we need to draw on.
+                sprite = m_MiniMapSprites[index];
+#else
                 return; // Skip the draw entirely.
+#endif
             }
         }
 
@@ -1752,7 +1759,12 @@ void CRadarNew::DrawRadarSection(int x, int y) {
                 }
             }
             else {
+#if DEBUG
+                // For debugging, let's render out the normal map so we can find out what area we need to draw on.
+                sprite = m_MiniMapSprites[index];
+#else
                 return; // Skip the draw entirely.
+#endif
             }
         }
 
