@@ -185,9 +185,9 @@ void CCellPhone::ShowHidePhone(bool on, bool force) {
         nPreviousItem = 4;
         bResetAnimation = true;
 
-        playa->m_nSavedWeapon = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_eWeaponType;
-        playa->RemoveWeaponAnims(playa->m_nActiveWeaponSlot, -1000.0f);
-        playa->MakeChangesForNewWeapon(WEAPON_UNARMED);
+        playa->m_nSavedWeapon = playa->GetWeapon()->m_eWeaponType;
+        playa->RemoveWeaponAnims(playa->m_nSelectedWepSlot, -1000.0f);
+        playa->MakeChangesForNewWeapon(WEAPONTYPE_UNARMED);
     }
     else {
         if (force) {
@@ -197,7 +197,7 @@ void CCellPhone::ShowHidePhone(bool on, bool force) {
 
         bShowOrHideAnimation = false;
 
-        playa->RemoveWeaponAnims(playa->m_nActiveWeaponSlot, -1000.0f);
+        playa->RemoveWeaponAnims(playa->m_nSelectedWepSlot, -1000.0f);
         playa->MakeChangesForNewWeapon(playa->m_nSavedWeapon);
     }
 

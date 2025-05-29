@@ -2,8 +2,9 @@
 #include "D3DSprite.h"
 
 CD3DSprite::CD3DSprite() {
-    // https://github.com/DK22Pac/plugin-sdk/pull/167
-    D3DXCreateSprite(GetD3DDevice<IDirect3DDevice9>(), &m_pSprite);
+    // https://github.com/GeTechG/plugin-sdk/commit/b06184298917f2abd542c4c2de1161c660fb2a3a
+    auto dev = reinterpret_cast<IDirect3DDevice9*>(GetD3DDevice());
+    D3DXCreateSprite(dev, &m_pSprite);
 }
 
 CD3DSprite::~CD3DSprite() {

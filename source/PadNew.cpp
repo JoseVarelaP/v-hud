@@ -1123,7 +1123,7 @@ bool CPadNew::GetWeaponWheelCycleLeft() {
         }
     }
 
-    return GetKeyJustDown(Controls[CA_PED_CYCLE_WEAPON_LEFT].key);
+    return GetKeyJustDown(Controls[PED_CYCLE_WEAPON_LEFT].key);
 }
 
 bool CPadNew::GetWeaponWheelCycleRight() {
@@ -1139,7 +1139,7 @@ bool CPadNew::GetWeaponWheelCycleRight() {
         }
     }
 
-    return GetKeyJustDown(Controls[CA_PED_CYCLE_WEAPON_RIGHT].key);
+    return GetKeyJustDown(Controls[PED_CYCLE_WEAPON_RIGHT].key);
 }
 
 bool CPadNew::GetShowPlayerInfo() {
@@ -1176,7 +1176,7 @@ bool CPadNew::CycleRadioStationLeftJustDown() {
     if (DisablePlayerControls)
         return false;
 
-    return GetKeyJustDown(Controls[CA_VEHICLE_RADIO_STATION_UP].key);
+    return GetKeyJustDown(Controls[VEHICLE_RADIO_STATION_UP].key);
 }
 
 bool CPadNew::CycleRadioStationRightJustDown() {
@@ -1186,7 +1186,7 @@ bool CPadNew::CycleRadioStationRightJustDown() {
     if (HAS_PAD_IN_HANDS(Id))
         return NewState.DPadLeft && !OldState.DPadLeft;
 
-    return GetKeyJustDown(Controls[CA_VEHICLE_RADIO_STATION_DOWN].key);
+    return GetKeyJustDown(Controls[VEHICLE_RADIO_STATION_DOWN].key);
 }
 
 CVector2D CPadNew::GetMouseInput(float mult) {

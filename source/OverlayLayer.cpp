@@ -12,6 +12,8 @@
 
 #include "resource.h"
 
+#include "d3d9.h"
+
 using namespace plugin;
 
 COverlayLayer overlayLayer;
@@ -101,7 +103,7 @@ void COverlayLayer::UpdateFrameBuffer() {
         CSprite2d::SetVertices(r, c, c, c, c, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f); \
         _rwD3D9RWSetRasterStage(t, 1); \
         _rwSetPixelShader(ps); \
-        GetD3DDevice<IDirect3DDevice9>()->SetPixelShaderConstantF(0, fShaderConstant, 1); \
+        reinterpret_cast<IDirect3DDevice9*>(GetD3DDevice())->SetPixelShaderConstantF(0, fShaderConstant, 1); \
         RwRenderStateSet(rwRENDERSTATETEXTURERASTER, frameBuffer); \
         _rwD3D9RWSetRasterStage(frameBuffer, 0); \
         RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, CSprite2d::maVertices, 4); \

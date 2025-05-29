@@ -576,11 +576,11 @@ void CWeaponSelector::PopulateSlot(int slot) {
         CWeaponWheel* w = WeaponWheel[slot][j];
 
         if (w) {
-            if (playa->DoWeHaveWeaponAvailable((eWeaponType)w->id) && (playa->m_aWeapons[playa->GetWeaponSlot((eWeaponType)w->id)].HasWeaponAmmoToBeUsed() || playa->m_aWeapons[playa->GetWeaponSlot((eWeaponType)w->id)].m_eWeaponType == WEAPON_UNARMED)) {
+            if (playa->DoWeHaveWeaponAvailable((eWeaponType)w->id) && (playa->m_aWeapons[playa->GetWeaponSlot((eWeaponType)w->id)].HasWeaponAmmoToBeUsed() || playa->m_aWeapons[playa->GetWeaponSlot((eWeaponType)w->id)].m_eWeaponType == WEAPONTYPE_UNARMED)) {
                 nArrayOfAvailableWeapons[slot][j] = j;
                 nNumWeaponsAvailableInSlot[slot]++;
 
-                if (playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_eWeaponType == (eWeaponType)w->id) {
+                if (playa->m_aWeapons[playa->m_nSelectedWepSlot].m_eWeaponType == (eWeaponType)w->id) {
                     nSelectedSlot = slot;
                     nSelectedWeapon[slot] = j;
 
@@ -678,8 +678,8 @@ void CWeaponSelector::CloseWeaponWheel(bool switchon) {
         if (nSelectedWeapon[nSelectedSlot] != -1 && weap != -1) {
             playa->m_pPlayerData->m_nChosenWeapon = playa->GetWeaponSlot((eWeaponType)w->id);
 
-            if (playa->m_pPlayerData->m_nChosenWeapon != playa->m_nActiveWeaponSlot) {
-                playa->RemoveWeaponAnims(playa->m_nActiveWeaponSlot, -1000.0f);
+            if (playa->m_pPlayerData->m_nChosenWeapon != playa->m_nSelectedWepSlot) {
+                playa->RemoveWeaponAnims(playa->m_nSelectedWepSlot, -1000.0f);
                 playa->MakeChangesForNewWeapon(playa->m_aWeapons[playa->m_pPlayerData->m_nChosenWeapon].m_eWeaponType);
                 nActiveSlot = nSelectedSlot;
                 nActiveWeapon[nSelectedSlot] = nSelectedWeapon[nSelectedSlot];
@@ -875,7 +875,7 @@ void CWeaponSelector::DrawWheel() {
 
                 int slot = playa->GetWeaponSlot((eWeaponType)wep->id);
                 int weaponType = playa->m_aWeapons[slot].m_eWeaponType;
-                int totalAmmo = playa->m_aWeapons[slot].m_nTotalAmmo;
+                int totalAmmo = playa->m_aWeapons[slot].m_nAmmoTotal;
                 int ammoInClip = playa->m_aWeapons[slot].m_nAmmoInClip;
                 int maxAmmoInClip = CWeaponInfo::GetWeaponInfo(playa->m_aWeapons[slot].m_eWeaponType, playa->GetWeaponSkill((eWeaponType)wep->id))->m_nAmmoClip;
                 int ammo, clip;
@@ -886,7 +886,7 @@ void CWeaponSelector::DrawWheel() {
                     strcpy(str_clip, "");
                 }
                 else {
-                    if (weaponType == WEAPON_FTHROWER) {
+                    if (weaponType == WEAPONTYPE_FTHROWER) {
                         unsigned int total = 9999;
                         if ((totalAmmo - ammoInClip) / 10 <= 9999)
                             total = (totalAmmo - ammoInClip) / 10;
@@ -906,10 +906,10 @@ void CWeaponSelector::DrawWheel() {
                     }
                 }
 
-                if (weaponType == WEAPON_UNARMED
-                    || weaponType == WEAPON_DETONATOR
-                    || weaponType >= WEAPON_DILDO1 && weaponType < WEAPON_GRENADE
-                    || weaponType == WEAPON_PARACHUTE
+                if (weaponType == WEAPONTYPE_UNARMED
+                    || weaponType == WEAPONTYPE_DETONATOR
+                    || weaponType >= WEAPONTYPE_DILDO1 && weaponType < WEAPONTYPE_GRENADE
+                    || weaponType == WEAPONTYPE_PARACHUTE
                     || CWeaponInfo::GetWeaponInfo((eWeaponType)weaponType, 1)->m_nWeaponFire == 5
                     || CWeaponInfo::GetWeaponInfo((eWeaponType)weaponType, 1)->m_nSlot <= 1) {
                 }
@@ -937,7 +937,7 @@ void CWeaponSelector::DrawWheel() {
         }
 
         // *Extra* Parachute
-        bool hasPara = playa->DoWeHaveWeaponAvailable(WEAPON_PARACHUTE);
+        bool hasPara = playa->DoWeHaveWeaponAvailable(WEAPONTYPE_PARACHUTE);
         if (hasPara) {
             WheelSprite[WHEEL_EXTRA]->Draw(SCREEN_COORD_CENTER_X + SCREEN_COORD(x + 202.0f), SCREEN_COORD_CENTER_Y + SCREEN_COORD(y + 202.0f), SCREEN_COORD(100.0f), SCREEN_COORD(100.0f), CRGBA(0, 0, 0, 50));
             ExtraSprite[WEXTRA_PARA]->Draw(SCREEN_COORD_CENTER_X + SCREEN_COORD(x + 198.0f), SCREEN_COORD_CENTER_Y + SCREEN_COORD(y + 198.0f), SCREEN_COORD(106.0f), SCREEN_COORD(106.0f), CRGBA(255, 255, 255, 255));
@@ -993,7 +993,7 @@ void CWeaponSelector::DrawWheel() {
                 offset += 30.0f;
             }
             int slot = playa->GetWeaponSlot((eWeaponType)selected_wep->id);
-            int ammo = playa->m_aWeapons[slot].m_nTotalAmmo - playa->m_aWeapons[slot].m_nAmmoInClip;
+            int ammo = playa->m_aWeapons[slot].m_nAmmoTotal - playa->m_aWeapons[slot].m_nAmmoInClip;
             if (ammo > 9999) {
                 CFontNew::SetScale(SCREEN_MULTIPLIER(0.58f), SCREEN_MULTIPLIER(1.28f));
                 CFontNew::PrintString(SCREEN_COORD_CENTER_X + SCREEN_COORD(x + 2.0f), SCREEN_COORD_CENTER_Y + SCREEN_COORD(y - 47.0f + offset), TextNew.GetText("UNLIMIT").text);

@@ -520,14 +520,14 @@ bool CHudNew::IsFirstPersonAiming() {
 void CHudNew::DrawCrosshairs() {
     float x = SCREEN_WIDTH * CCamera::m_f3rdPersonCHairMultX;
     float y = SCREEN_HEIGHT * CCamera::m_f3rdPersonCHairMultY;
-    int modelId = CWeaponInfo::GetWeaponInfo(CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_aWeapons[CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_nActiveWeaponSlot].m_eWeaponType, 1)->m_nModelId1;
+    int modelId = CWeaponInfo::GetWeaponInfo(CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_aWeapons[CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_nSelectedWepSlot].m_eWeaponType, 1)->m_nModelId;
     float radius = CWorld::Players[CWorld::PlayerInFocus].m_pPed->GetWeaponRadiusOnScreen() * 2.0f;
-    bool reloading = CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_aWeapons[CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_nActiveWeaponSlot].m_nState == WEAPONSTATE_RELOADING;
+    bool reloading = CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_aWeapons[CWorld::Players[CWorld::PlayerInFocus].m_pPed->m_nSelectedWepSlot].m_nState == WEAPONSTATE_RELOADING;
 
     CRect rect;
     CRGBA col;
     CPlayerPed* playa = FindPlayerPed(-1);
-    char* crosshairName = CWeaponSelector::nCrosshairs[playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_eWeaponType].name;
+    char* crosshairName = CWeaponSelector::nCrosshairs[playa->m_aWeapons[playa->m_nSelectedWepSlot].m_eWeaponType].name;
     bool forceForFPS = false;
 
     unsigned int savedShade;
@@ -621,7 +621,7 @@ void CHudNew::DrawCrosshairs() {
                 else if (!faststrcmp(crosshairName, "sniper")) {
                     COverlayLayer::SetEffect(EFFECT_LENS_DISTORTION);
 
-                    static int shoot = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_nTotalAmmo;
+                    static int shoot = playa->m_aWeapons[playa->m_nSelectedWepSlot].m_nAmmoTotal;
                     static unsigned int time = 0;
 
                     rect.left = (SCREEN_WIDTH / 2) - SCREEN_COORD(960.0f);
@@ -640,9 +640,9 @@ void CHudNew::DrawCrosshairs() {
                     rect.top = (SCREEN_HEIGHT / 2) - SCREEN_COORD(96.0f);
                     rect.bottom = (SCREEN_HEIGHT / 2) + SCREEN_COORD(96.0f);
 
-                    if (playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_nTotalAmmo != shoot) {
-                        shoot = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_nTotalAmmo;
-                        time = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_nTimeForNextShot;
+                    if (playa->m_aWeapons[playa->m_nSelectedWepSlot].m_nAmmoTotal != shoot) {
+                        shoot = playa->m_aWeapons[playa->m_nSelectedWepSlot].m_nAmmoTotal;
+                        time = playa->m_aWeapons[playa->m_nSelectedWepSlot].m_nTimeForNextShot;
                     }
 
                     if (time > CTimer::m_snTimeInMilliseconds)
@@ -838,9 +838,9 @@ void CHudNew::DrawMoneyCounter() {
 
 void CHudNew::DrawAmmo() {
     CPed* playa = FindPlayerPed(0);
-    int slot = playa->m_nActiveWeaponSlot;
+    int slot = playa->m_nSelectedWepSlot;
     int weaponType = playa->m_aWeapons[slot].m_eWeaponType;
-    int totalAmmo = playa->m_aWeapons[slot].m_nTotalAmmo;
+    int totalAmmo = playa->m_aWeapons[slot].m_nAmmoTotal;
     int ammoInClip = playa->m_aWeapons[slot].m_nAmmoInClip;
     int maxAmmoInClip = CWeaponInfo::GetWeaponInfo(playa->m_aWeapons[slot].m_eWeaponType, playa->GetWeaponSkill())->m_nAmmoClip;
     //int ammo, clip;
@@ -851,7 +851,7 @@ void CHudNew::DrawAmmo() {
         strcpy(str_clip, "");
     }
     else {
-        if (weaponType == WEAPON_FTHROWER) {
+        if (weaponType == WEAPONTYPE_FTHROWER) {
             unsigned int total = 9999;
             if ((totalAmmo - ammoInClip) / 10 <= 9999)
                 total = (totalAmmo - ammoInClip) / 10;
@@ -899,10 +899,10 @@ void CHudNew::DrawAmmo() {
     heightLerp = interpF(heightLerp, GetShiftOffsetForAmmo(), 0.4f * CTimer::ms_fTimeStep);
 
     if (CDarkel::FrenzyOnGoing()
-        || weaponType == WEAPON_UNARMED
-        || weaponType == WEAPON_DETONATOR
-        || weaponType >= WEAPON_DILDO1 && weaponType < WEAPON_GRENADE
-        || weaponType == WEAPON_PARACHUTE
+        || weaponType == WEAPONTYPE_UNARMED
+        || weaponType == WEAPONTYPE_DETONATOR
+        || weaponType >= WEAPONTYPE_DILDO1 && weaponType < WEAPONTYPE_GRENADE
+        || weaponType == WEAPONTYPE_PARACHUTE
         || CWeaponInfo::GetWeaponInfo((eWeaponType)weaponType, 1)->m_nWeaponFire == 5
         || CWeaponInfo::GetWeaponInfo((eWeaponType)weaponType, 1)->m_nSlot <= 1) {
         nTimeToShowAmmoDifference = 0;
@@ -1164,12 +1164,12 @@ void CHudNew::DrawStats() {
         CFontNew::SetOutline(0.0f);
         CFontNew::SetScale(SCREEN_MULTIPLIER(0.52f), SCREEN_MULTIPLIER(1.24f));
 
-        int wepType = playa->m_aWeapons[playa->m_nActiveWeaponSlot].m_eWeaponType;
-        if (wepType == WEAPON_TEC9) {
-            wepType = WEAPON_MICRO_UZI;
+        int wepType = playa->m_aWeapons[playa->m_nSelectedWepSlot].m_eWeaponType;
+        if (wepType == WEAPONTYPE_TEC9) {
+            wepType = WEAPONTYPE_MICRO_UZI;
         }
 
-        int wep_stat_id = wepType < WEAPON_PISTOL || wepType > WEAPON_TEC9 ? -1 : wepType <= WEAPON_M4 ? wepType - WEAPON_PISTOL + STAT_PISTOL_SKILL : STAT_MACHINE_PISTOL_SKILL;
+        int wep_stat_id = wepType < WEAPONTYPE_PISTOL || wepType > WEAPONTYPE_TEC9 ? -1 : wepType <= WEAPONTYPE_M4 ? wepType - WEAPONTYPE_PISTOL + STAT_PISTOL_SKILL : STAT_MACHINE_PISTOL_SKILL;
 
         unsigned short stat[] = {
             64,

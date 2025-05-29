@@ -279,7 +279,8 @@ void CFontNew::Clear() {
 }
 
 long CFontNew::AddFont(CFontTT t, LPD3DXFONT* font) {
-    return D3DXCreateFontA(GetD3DDevice<IDirect3DDevice9>(), t.height, t.width, FW_NORMAL, 0, FALSE, t.charSet, OUT_DEFAULT_PRECIS, t.quality, DEFAULT_PITCH | FF_DONTCARE, t.fontName, font);
+    auto dev = reinterpret_cast<IDirect3DDevice9*>(GetD3DDevice());
+    return D3DXCreateFontA(dev, t.height, t.width, FW_NORMAL, 0, FALSE, t.charSet, OUT_DEFAULT_PRECIS, t.quality, DEFAULT_PITCH | FF_DONTCARE, t.fontName, font);
 }
 
 void CFontNew::Shutdown() {
@@ -955,7 +956,7 @@ float CFontNew::DrawChar(bool print, bool calc, float x, float y, char c, int st
                 IDirect3DVertexShader9* savedVertexShader = NULL;
                 IDirect3DPixelShader9* savedPixelShader = NULL;
 
-                auto device = GetD3DDevice<IDirect3DDevice9>();
+                auto device = reinterpret_cast<IDirect3DDevice9*>(GetD3DDevice());
                 device->GetRenderState(D3DRS_COLORWRITEENABLE, &savedColorWrite);
                 device->GetVertexDeclaration(&savedVertexDecl);
                 device->GetVertexShader(&savedVertexShader);

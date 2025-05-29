@@ -64,10 +64,11 @@ project "v-hud"
 		links { "rwd3d9" }
 	
 	filter { "configurations:*SA" }
-		defines { "GTASA", "PLUGIN_SGV_10US" }
+		defines { "GTASA", "RW", "PLUGIN_SGV_10US" }
 		includedirs {
 			"$(PLUGIN_SDK_DIR)/plugin_sa/",
-			"$(PLUGIN_SDK_DIR)/plugin_sa/game_sa/"
+			"$(PLUGIN_SDK_DIR)/plugin_sa/game_sa/",
+			"$(PLUGIN_SDK_DIR)/plugin_sa/game_sa/rw"
 		}
 		targetname "VHud"
 		debugdir "$(GTA_SA_DIR)"

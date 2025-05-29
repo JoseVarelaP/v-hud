@@ -500,7 +500,7 @@ unsigned int CRadarNew::GetRadarTraceColour(RadarTraceColour c, bool bright, boo
 }
 
 int*& CRadarNew::GetRadarTexturesSlot() {
-    return gRadarTextures;
+    return gRadarTxdIds;
 }
 
 tRadarTrace*& CRadarNew::GetRadarTrace() {
@@ -2066,7 +2066,8 @@ void CRadarNew::DrawRadarMap(int x, int y) {
         color[2] = rgb.b / 255.0f;
         color[3] = 3.0f;
 
-        GetD3DDevice<IDirect3DDevice9>()->SetPixelShaderConstantF(0, color, 1);
+        auto dev = reinterpret_cast<IDirect3DDevice9*>(GetD3DDevice());
+        dev->SetPixelShaderConstantF(0, color, 1);
 
         RwRenderStateSet(rwRENDERSTATETEXTURERASTER, m_pFrameBuffer2);
         _rwD3D9RWSetRasterStage(m_pFrameBuffer2, 0);
