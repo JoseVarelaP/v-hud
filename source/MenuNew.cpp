@@ -3538,11 +3538,14 @@ void CMenuNew::DrawDefault() {
                     rightText = TextNew.GetText(TempSettings.tracksAutoScan ? "FE_ON" : "FE_OFF").text;
                     break;
                 case MENUENTRY_RADIOMODE:
+                    rightText = TextNew.GetText("FE_OFF").text;
+                    /*
                     switch (TempSettings.radioMode) {
-                    default:
-                        rightText = TextNew.GetText("FE_OFF").text;
-                        break;
+                        default:
+                            rightText = TextNew.GetText("FE_OFF").text;
+                            break;
                     }
+                    */
                     break;
                 case MENUENTRY_SHOWCONTROLSFOR:
                     rightText = TextNew.GetText(TempSettings.showControlsFor ? "PAD_VH" : "PAD_FT").text;
@@ -4458,7 +4461,7 @@ void CMenuNew::DrawLegend() {
         }
 
         static int level;
-        static int time;
+        static uint time;
         if (time < CTimer::m_snTimeInMillisecondsPauseMode) {
             level++;
             time = 800 + CTimer::m_snTimeInMillisecondsPauseMode;

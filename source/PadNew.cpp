@@ -962,7 +962,7 @@ bool CPadNew::GetLeftMouseDown() {
 }
 
 int leftMouseCount = 0;
-int leftMouseCountTime = 0;
+uint leftMouseCountTime = 0;
 bool CPadNew::GetLeftMouseDoubleClickJustDown() {
     if (leftMouseCountTime < CTimer::m_snTimeInMillisecondsPauseMode) {
         leftMouseCountTime = 0;

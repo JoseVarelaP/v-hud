@@ -27,6 +27,7 @@ public:
 };
 
 struct CFontDetailsNew {
+public:
 	CRGBA color;
 	CRGBA dropColor;
 	CVector2D scale;
@@ -45,8 +46,6 @@ struct CFontDetailsNew {
 	char ignoreTokens[2];
 	bool ignoreGamePadSymbols;
 	bool upperCase;
-
-	CFontDetailsNew() {}
 };
 
 class VHUD_API CFontNew {

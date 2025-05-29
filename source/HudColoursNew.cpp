@@ -55,6 +55,8 @@ CRGBA CHudColoursNew::GetRGB(char* name, unsigned char alpha) {
             return CRGBA(HudColourNew.GetRGBA(i).r, HudColourNew.GetRGBA(i).g, HudColourNew.GetRGBA(i).b, alpha);
         }
     }
+
+    return CRGBA(255, 255, 255, 255);
 }
 
 CRGBA CHudColoursNew::GetRGBA(char* name) {
@@ -63,6 +65,8 @@ CRGBA CHudColoursNew::GetRGBA(char* name) {
             return HudColourNew.GetRGBA(i);
         }
     }
+
+    return CRGBA(255, 255, 255, 255);
 }
 
 CRGBA CHudColoursNew::GetRGBA(int color) {

@@ -1464,7 +1464,7 @@ void CRadarNew::DrawRadarRectangle() {
         }
 
         // Just a label for versioning.
-        char* str2 = "V-Hud v0.960-RykeShrk";
+        char* str2 = "V-Hud v0.966-RykeShrk";
         CFontNew::SetAlignment(CFontNew::ALIGN_LEFT);
         CFontNew::SetBackground(false);
         CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));

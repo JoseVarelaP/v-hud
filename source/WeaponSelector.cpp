@@ -44,7 +44,7 @@ int CWeaponSelector::nSelectedSlot;
 int CWeaponSelector::nSelectedWeapon[8];
 CWeaponWheel* CWeaponSelector::WeaponWheel[8][MAX_WEAPONS_ON_WHEEL];
 bool CWeaponSelector::bSlowCycle;
-int CWeaponSelector::nTimeSinceClosed;
+unsigned int CWeaponSelector::nTimeSinceClosed;
 float CWeaponSelector::nPrevCamHor;
 float CWeaponSelector::nPrevCamVer;
 int CWeaponSelector::nNumSelectedWeaponAvailableInSlot[8];
@@ -580,7 +580,7 @@ void CWeaponSelector::PopulateSlot(int slot) {
                 nArrayOfAvailableWeapons[slot][j] = j;
                 nNumWeaponsAvailableInSlot[slot]++;
 
-                if (playa->m_aWeapons[playa->m_nSelectedWepSlot].m_eWeaponType == (eWeaponType)w->id) {
+                if (playa->GetWeapon()->m_eWeaponType == (eWeaponType)w->id) {
                     nSelectedSlot = slot;
                     nSelectedWeapon[slot] = j;
 
@@ -792,7 +792,7 @@ void CWeaponSelector::DrawWheel() {
         else
             nWeaponExtraFadeAlpha = (int)interpF(nWeaponExtraFadeAlpha, 255, 0.2f * CTimer::ms_fTimeStep);
 
-        if (!bSlowCycle && nWeaponWheelOpenTime < CTimer::m_snTimeInMilliseconds)
+        if (!bSlowCycle && static_cast<unsigned int>(nWeaponWheelOpenTime) < CTimer::m_snTimeInMilliseconds)
             CloseWeaponWheel(true);
 
         float x = GET_SETTING(HUD_WEAPON_WHEEL).x;
@@ -878,7 +878,7 @@ void CWeaponSelector::DrawWheel() {
                 int totalAmmo = playa->m_aWeapons[slot].m_nAmmoTotal;
                 int ammoInClip = playa->m_aWeapons[slot].m_nAmmoInClip;
                 int maxAmmoInClip = CWeaponInfo::GetWeaponInfo(playa->m_aWeapons[slot].m_eWeaponType, playa->GetWeaponSkill((eWeaponType)wep->id))->m_nAmmoClip;
-                int ammo, clip;
+                // int ammo, clip;
                 char str_ammo[16], str_clip[16];
 
                 if (maxAmmoInClip <= 1 || maxAmmoInClip >= 1000) {

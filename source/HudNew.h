@@ -114,12 +114,12 @@ public:
 
     static bool bShowAmmo;
     static int nAmmoFadeAlpha;
-    static int nTimeToShowAmmoDifference;
+    static uint nTimeToShowAmmoDifference;
 
     static int m_nPreviousMoney;
     static int m_nDiffMoney;
 
-    static int nTargettedEntityDeathTime;
+    static uint nTargettedEntityDeathTime;
     static float m_bBNWShaderAlphaScale;
 
     static bool m_bShowMissionText;

@@ -206,7 +206,7 @@ void TakeScreenShot(const char* path, const char* name) {
     infoHeader->biWidth = w;
 
     RGBTRIPLE* img = (RGBTRIPLE*)&data[sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)];
-    RGBTRIPLE color;
+    RGBTRIPLE color{};
 
     HDC dc = CreateCompatibleDC(GetDC(wnd));
     HBITMAP bmp = CreateCompatibleBitmap(GetDC(wnd), w, h);

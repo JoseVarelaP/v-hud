@@ -22,7 +22,7 @@ CRadioHud radioHud;
 
 CSprite2d* CRadioHud::m_RadioIcons[NUM_RADIO_SPRITES];
 bool CRadioHud::m_bInitialised = false;
-int CRadioHud::m_nTimeToDisplay = 0;
+uint CRadioHud::m_nTimeToDisplay = 0;
 int CRadioHud::m_nCurrentRadioId = 1;
 int CRadioHud::m_nPreviousRadioId = 1;
 bool CRadioHud::m_bChangeRadioStation = false;

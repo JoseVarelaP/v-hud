@@ -223,7 +223,7 @@ void CTextureMgr::Combine(RwRaster* raster1, RwRaster* raster2) {
 	double v18;
 	RwUInt8* v20;
 	int v21;
-	int v22;
+	//int v22;
 	float v23;
 	float v24;
 

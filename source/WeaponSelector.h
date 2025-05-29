@@ -66,7 +66,7 @@ public:
     static int nActiveWeapon[8];
     static CWeaponWheel* WeaponWheel[8][MAX_WEAPONS_ON_WHEEL];
     static bool bSlowCycle;
-    static int nTimeSinceClosed;
+    static unsigned int nTimeSinceClosed;
     static float nPrevCamHor;
     static float nPrevCamVer;
     static int nNumSelectedWeaponAvailableInSlot[8];

@@ -5,6 +5,8 @@ project_files/**
 *.asi
 *.ilk
 
+bass.dll
+
 # Don't include the auto-generated package folder.
 v-hud/
 # Don't include release packages.
