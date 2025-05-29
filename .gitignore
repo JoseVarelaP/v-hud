@@ -4,3 +4,8 @@ project_files/**
 *.pdb
 *.asi
 *.ilk
+
+# Don't include the auto-generated package folder.
+v-hud/
+# Don't include release packages.
+v-hud-v*-ryke.zip
