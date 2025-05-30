@@ -56,65 +56,66 @@ void CGPS::DrawDistanceFromWaypoint() {
     if (!MenuNew.Settings.gpsRoute)
         return;
 
-    if (bShowGPS) {
-        float x, y, w, h;
+    if (!bShowGPS)
+        return;
 
-        x = HUD_X(GET_SETTING(HUD_RADAR_GPS_RECT).x);
-        y = HUD_BOTTOM(GET_SETTING(HUD_RADAR_GPS_RECT).y);
-        w = HUD_X(GET_SETTING(HUD_RADAR_GPS_RECT).w);
-        h = HUD_BOTTOM(GET_SETTING(HUD_RADAR_GPS_RECT).h);
+    float x, y, w, h;
 
-        CSprite2d::DrawRect(CRect(x, y, w, h), GET_SETTING(HUD_RADAR_GPS_RECT).col);
+    x = HUD_X(GET_SETTING(HUD_RADAR_GPS_RECT).x);
+    y = HUD_BOTTOM(GET_SETTING(HUD_RADAR_GPS_RECT).y);
+    w = HUD_X(GET_SETTING(HUD_RADAR_GPS_RECT).w);
+    h = HUD_BOTTOM(GET_SETTING(HUD_RADAR_GPS_RECT).h);
 
-        CFontNew::SetClipX(SCREEN_WIDTH);
-        CFontNew::SetWrapX(SCREEN_WIDTH);
-        CFontNew::SetBackground(false);
-        CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
-        CFontNew::SetFontStyle(CFontNew::FONT_4);
-        CFontNew::SetAlignment(CFontNew::ALIGN_LEFT);
-        CFontNew::SetColor(GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).col);
-        CFontNew::SetOutline(0.0f);
-        CFontNew::SetDropColor(CRGBA(0, 0, 0, 255));
-        CFontNew::SetDropShadow(SCREEN_MULTIPLIER(1.0f));
-        w = GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).w;
-        h = GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).h;
-        CFontNew::SetScale(SCREEN_MULTIPLIER(w), SCREEN_MULTIPLIER(h));
+    CSprite2d::DrawRect(CRect(x, y, w, h), GET_SETTING(HUD_RADAR_GPS_RECT).col);
 
-        char text[16];
+    CFontNew::SetClipX(SCREEN_WIDTH);
+    CFontNew::SetWrapX(SCREEN_WIDTH);
+    CFontNew::SetBackground(false);
+    CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
+    CFontNew::SetFontStyle(CFontNew::FONT_4);
+    CFontNew::SetAlignment(CFontNew::ALIGN_LEFT);
+    CFontNew::SetColor(GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).col);
+    CFontNew::SetOutline(0.0f);
+    CFontNew::SetDropColor(CRGBA(0, 0, 0, 255));
+    CFontNew::SetDropShadow(SCREEN_MULTIPLIER(1.0f));
+    w = GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).w;
+    h = GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).h;
+    CFontNew::SetScale(SCREEN_MULTIPLIER(w), SCREEN_MULTIPLIER(h));
 
-        if (MenuNew.Settings.measurementSys == 0) {
-            if (Dest.fGPSDistance > 1000.0f)
-                sprintf(text, "%.2fkm", Dest.fGPSDistance / 1000.0f);
-            else
-                sprintf(text, "%dm", (int)(Dest.fGPSDistance));
-        }
-        else if (MenuNew.Settings.measurementSys == 1) {
-            int feet, totalInches, remainderInches;
+    char text[16];
 
-            totalInches = (int)(Dest.fGPSDistance * 39.3701);
-            feet = (int)(totalInches / 12);
-            remainderInches = totalInches - (feet * 12);
+    if (MenuNew.Settings.measurementSys == 0) {
+        if (Dest.fGPSDistance > 1000.0f)
+            sprintf(text, "%.2fkm", Dest.fGPSDistance / 1000.0f);
+        else
+            sprintf(text, "%dm", (int)(Dest.fGPSDistance));
+    }
+    else if (MenuNew.Settings.measurementSys == 1) {
+        int feet, totalInches, remainderInches;
 
-            if (Dest.fGPSDistance > 1000.0f)
-                sprintf(text, "%dft", feet);
-            else
-                sprintf(text, "%in", remainderInches);
-        }
+        totalInches = (int)(Dest.fGPSDistance * 39.3701);
+        feet = (int)(totalInches / 12);
+        remainderInches = totalInches - (feet * 12);
 
-        x = GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).x;
-        y = GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).y;
+        if (Dest.fGPSDistance > 1000.0f)
+            sprintf(text, "%dft", feet);
+        else
+            sprintf(text, "%in", remainderInches);
+    }
 
-        CFontNew::PrintString(HUD_X(x), HUD_BOTTOM(y), text);
+    x = GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).x;
+    y = GET_SETTING(HUD_RADAR_GPS_DIST_TEXT).y;
 
-        if (Dest.nPathDirection != 8) {
-            x = HUD_X(GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).x);
-            y = HUD_BOTTOM(GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).y);
-            w = SCREEN_COORD(GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).w);
-            h = SCREEN_COORD(GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).h);
+    CFontNew::PrintString(HUD_X(x), HUD_BOTTOM(y), text);
 
-            float a = (Dest.nPathDirection * 90.0f) / 57.2957795f;
-            CRadarNew::DrawRotatingRadarSprite(&pathDirSprite, x, y, -a, w, h, GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).col);
-        }
+    if (Dest.nPathDirection != 8) {
+        x = HUD_X(GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).x);
+        y = HUD_BOTTOM(GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).y);
+        w = SCREEN_COORD(GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).w);
+        h = SCREEN_COORD(GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).h);
+
+        float a = (Dest.nPathDirection * 90.0f) / 57.2957795f;
+        CRadarNew::DrawRotatingRadarSprite(&pathDirSprite, x, y, -a, w, h, GET_SETTING(HUD_RADAR_GPS_DIST_ARROW).col);
     }
 }
 

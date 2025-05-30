@@ -458,7 +458,7 @@ void CRadarNew::DestroyCamera() {
     if (m_pCamera) {
         m_pCamera->frameBuffer = NULL;
         m_pCamera->zBuffer = NULL;
-        //RwCameraDestroy(m_pCamera);
+        RwCameraDestroy(m_pCamera);
         m_pCamera = NULL;
     }
 }

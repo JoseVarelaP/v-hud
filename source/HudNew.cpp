@@ -1457,7 +1457,8 @@ void CHudNew::DrawMissionTimers() {
 
                 if (MissionTimersString[i][1]) {
                     CFontNew::SetUpperCase(true);
-                    CFontNew::PrintString((x + SCREEN_COORD(-10.0f)) - w, y + SCREEN_COORD(-34.0f), MissionTimersString[i][1]);
+                    auto str = VHud::ConvertCharStreamToUTFString(MissionTimersString[i][1]);
+                    CFontNew::PrintString((x + SCREEN_COORD(-10.0f)) - w, y + SCREEN_COORD(-34.0f), str.c_str());
                     CFontNew::SetUpperCase(false);
                 }
 
