@@ -179,7 +179,9 @@ void CRadarNew::Init() {
         // TODO: Some interiors have floors. Need to make a struct that can store the floor Z levels to load separate versions
         // of these floors into memory.
         m_InteriorMapSprites[36] = IntBlockInfo({906, 911, 917});   // Jizzy's Club
+        m_InteriorMapSprites[42] = IntBlockInfo();   // Ballas safe house
         m_InteriorMapSprites[61] = IntBlockInfo();   // Zero's shop
+        m_InteriorMapSprites[66] = IntBlockInfo();   // Police Station
         m_InteriorMapSprites[67] = IntBlockInfo();   // LS Gym
         m_InteriorMapSprites[68] = IntBlockInfo();   // StrClub-Top
         m_InteriorMapSprites[78] = IntBlockInfo();   // Binco
@@ -293,9 +295,10 @@ void CRadarNew::ReloadMapTextures() {
         }
     }
 
-    sprintf(name, m_IntNamePrefix, 61);
-    m_InteriorMapSprites[61].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
-    m_InteriorMapSprites[61].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+    const int intnumber = 42;
+    sprintf(name, m_IntNamePrefix, intnumber);
+    m_InteriorMapSprites[intnumber].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
+    m_InteriorMapSprites[intnumber].floors[0]->m_pTexture = CTextureMgr::LoadPNGTextureCB(PLUGIN_PATH("VHud\\interior"), name);
 #endif
 }
 
