@@ -29,9 +29,12 @@ static LateStaticInit InstallHooks([]() {
         C3dMarkers::PlaceMarker(id, type, posn, size, col.r, col.g, col.b, col.a, pulsePeriod, pulseFraction, rotateRate, nrm_x, nrm_y, nrm_z, zCheck);
     };
     patch::RedirectCall(0x725BF0, (void(__cdecl*)(unsigned int, unsigned short, CVector&, float, unsigned char red, unsigned char, unsigned char, unsigned char, unsigned short, float, short, float, float, float, bool))placeMarker);
-    patch::Nop(0x70CDBC, 5);
-    patch::Nop(0x70CD6C, 5);
-    patch::Nop(0x725657, 6);
+
+    // These NoOp calls seem to cause issues on DXVK instances, so don't bother with them.
+    // https://github.com/JoseVarelaP/v-hud/issues/2
+    //patch::Nop(0x70CDBC, 5);
+    //patch::Nop(0x70CD6C, 5);
+    //patch::Nop(0x725657, 6);
 
     auto placeEntryExitMarker = [](unsigned int id, CVector& posn, float size, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha, int unused1, unsigned short pulsePeriod, float pulseFraction, float unused2, bool unused3) {
         MarkersNew.Markers[MarkersNew.MarkersCount].used = true;
@@ -87,10 +90,11 @@ void C3dMarkersNew::DrawArrows() {
         vin.z += 0.25f * s;
 
         RwV3d in = { vin.x, vin.y, vin.z };
-        RwV3d out;
+        RwV3d out = { 0.f, 0.f, 0.f };
+        
         CRGBA col = Markers[i].col;
         bool used = Markers[i].used;
-        float w, h;
+        float w, h = 0;
 
         if (used && CSprite::CalcScreenCoors(in, &out, &w, &h, true, true)) {
             const float recip = 1.0f / out.z;
