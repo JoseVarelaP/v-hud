@@ -1265,127 +1265,127 @@ void CHudNew::DrawWanted() {
 }
 
 void CHudNew::DrawVehicleName() {
-    if (CHud::m_pVehicleName) {
-        int state = CHud::m_VehicleState;
-        char* last = CHud::m_pLastVehicleName;
-        float alpha = 0.0f;
-
-        if (CHud::m_pVehicleName != CHud::m_pLastVehicleName) {
-            if (CHud::m_VehicleState) {
-                if (CHud::m_VehicleState > 0 && CHud::m_VehicleState <= 4) {
-                    state = 4;
-                    CHud::m_VehicleState = 4;
-                    CHud::m_VehicleNameTimer = 0;
-                }
-            }
-            else {
-                state = 2;
-                CHud::m_VehicleState = 2;
-                CHud::m_VehicleNameTimer = 0;
-                CHud::m_VehicleFadeTimer = 0;
-                CHud::m_pVehicleNameToPrint = CHud::m_pVehicleName;
-                if (CHud::m_ZoneState == 1 || CHud::m_ZoneState == 2)
-                    CHud::m_ZoneState = 3;
-            }
-            last = CHud::m_pVehicleName;
-            CHud::m_pLastVehicleName = CHud::m_pVehicleName;
-        }
-
-        if (state) {
-            switch (state) {
-            case 1:
-                if (CHud::m_VehicleNameTimer > 6000) {
-                    CHud::m_VehicleFadeTimer = 1000;
-                    CHud::m_VehicleState = 3;
-                }
-
-                alpha = 255.0f;
-                CHud::m_VehicleFadeTimer = 1000;
-                break;
-            case 2:
-                CHud::m_VehicleFadeTimer += CTimer::ms_fTimeStep * 0.02f * 1000.0f;
-                if (CHud::m_VehicleFadeTimer > 1000) {
-                    CHud::m_VehicleState = 1;
-                    CHud::m_VehicleFadeTimer = 1000;
-                }
-                alpha = CHud::m_VehicleFadeTimer * 0.001f * 255.0f;
-                break;
-            case 3:
-                CHud::m_VehicleFadeTimer += CTimer::ms_fTimeStep * 0.02f * -1000.0f;
-                if (CHud::m_VehicleFadeTimer < 0) {
-                    CHud::m_VehicleState = 0;
-                    CHud::m_VehicleFadeTimer = 0;
-                }
-                alpha = CHud::m_VehicleFadeTimer * 0.001f * 255.0f;
-                break;
-            case 4:
-                CHud::m_VehicleFadeTimer += CTimer::ms_fTimeStep * 0.02f * -1000.0f;
-                if (CHud::m_VehicleFadeTimer < 0) {
-                    CHud::m_VehicleFadeTimer = 0;
-                    CHud::m_VehicleState = 2;
-                    CHud::m_pVehicleNameToPrint = last;
-                }
-                alpha = CHud::m_VehicleFadeTimer * 0.001f * 255.0f;
-                break;
-            default:
-                break;
-
-            }
-
-            CHud::m_VehicleNameTimer += CTimer::ms_fTimeStep * 0.02f * 1000.0f;
-
-            char* textClass[] = {
-                "NORMAL",
-                "POORFAM",
-                "RICHFAM",
-                "EXECUTI",
-                "WORKER",
-                "BIG",
-                "SERVICE",
-                "MOPED",
-                "MOTORBI",
-                "LEISURE",
-                "WORKERB",
-                "BICYCLE",
-                "IGNORE",
-            };
-
-            if (CHud::m_pVehicleNameToPrint) {
-                char vehicleName[512];
-                strcpy(vehicleName, CHud::m_pVehicleNameToPrint);
-
-                if (FindPlayerVehicle(0, true)) {
-                    unsigned char vehClass = ((CVehicleModelInfo*)(CModelInfo::GetModelInfo(FindPlayerVehicle(0, true)->m_nModelIndex)))->m_nVehicleClass;
-                    if (vehClass == -1 || vehClass > 12)
-                        vehClass = 12;
-
-                    const char* c = TextNew.GetText(textClass[vehClass]).text;
-
-                    if (c)
-                        sprintf(vehicleName, "%s, %s", CHud::m_pVehicleNameToPrint, c);
-                }
-
-                CFontNew::SetBackground(false);
-                CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
-                CFontNew::SetAlignment(CFontNew::ALIGN_RIGHT);
-                CFontNew::SetWrapX(SCREEN_COORD(640.0f));
-                CFontNew::SetFontStyle(CFontNew::FONT_2);
-                CFontNew::SetOutline(0.0f);
-                CFontNew::SetDropShadow(SCREEN_MULTIPLIER(2.0f));
-                CFontNew::SetDropColor(CRGBA(0, 0, 0, alpha));
-
-                CRGBA col = GET_SETTING(HUD_VEHICLE_NAME).col;
-                CFontNew::SetColor(CRGBA(col.r, col.g, col.b, alpha));
-                CFontNew::SetScale(SCREEN_MULTIPLIER(GET_SETTING(HUD_VEHICLE_NAME).w), SCREEN_MULTIPLIER(GET_SETTING(HUD_VEHICLE_NAME).h));
-                CFontNew::PrintString(HUD_RIGHT(GET_SETTING(HUD_VEHICLE_NAME).x), HUD_BOTTOM(GET_SETTING(HUD_VEHICLE_NAME).y), vehicleName);
-            }
-        }
-    }
-    else {
+    if (!CHud::m_pVehicleName) {
         CHud::m_pLastVehicleName = NULL;
         CHud::m_VehicleState = 0;
         CHud::m_VehicleFadeTimer = 0;
         CHud::m_VehicleNameTimer = 0;
+        return;
+    }
+
+    int state = CHud::m_VehicleState;
+    char* last = CHud::m_pLastVehicleName;
+    float alpha = 0.0f;
+
+    if (CHud::m_pVehicleName != CHud::m_pLastVehicleName) {
+        if (CHud::m_VehicleState) {
+            if (CHud::m_VehicleState > 0 && CHud::m_VehicleState <= 4) {
+                state = 4;
+                CHud::m_VehicleState = 4;
+                CHud::m_VehicleNameTimer = 0;
+            }
+        }
+        else {
+            state = 2;
+            CHud::m_VehicleState = 2;
+            CHud::m_VehicleNameTimer = 0;
+            CHud::m_VehicleFadeTimer = 0;
+            CHud::m_pVehicleNameToPrint = CHud::m_pVehicleName;
+            if (CHud::m_ZoneState == 1 || CHud::m_ZoneState == 2)
+                CHud::m_ZoneState = 3;
+        }
+        last = CHud::m_pVehicleName;
+        CHud::m_pLastVehicleName = CHud::m_pVehicleName;
+    }
+
+    if (state) {
+        switch (state) {
+        case 1:
+            if (CHud::m_VehicleNameTimer > 6000) {
+                CHud::m_VehicleFadeTimer = 1000;
+                CHud::m_VehicleState = 3;
+            }
+
+            alpha = 255.0f;
+            CHud::m_VehicleFadeTimer = 1000;
+            break;
+        case 2:
+            CHud::m_VehicleFadeTimer += CTimer::ms_fTimeStep * 0.02f * 1000.0f;
+            if (CHud::m_VehicleFadeTimer > 1000) {
+                CHud::m_VehicleState = 1;
+                CHud::m_VehicleFadeTimer = 1000;
+            }
+            alpha = CHud::m_VehicleFadeTimer * 0.001f * 255.0f;
+            break;
+        case 3:
+            CHud::m_VehicleFadeTimer += CTimer::ms_fTimeStep * 0.02f * -1000.0f;
+            if (CHud::m_VehicleFadeTimer < 0) {
+                CHud::m_VehicleState = 0;
+                CHud::m_VehicleFadeTimer = 0;
+            }
+            alpha = CHud::m_VehicleFadeTimer * 0.001f * 255.0f;
+            break;
+        case 4:
+            CHud::m_VehicleFadeTimer += CTimer::ms_fTimeStep * 0.02f * -1000.0f;
+            if (CHud::m_VehicleFadeTimer < 0) {
+                CHud::m_VehicleFadeTimer = 0;
+                CHud::m_VehicleState = 2;
+                CHud::m_pVehicleNameToPrint = last;
+            }
+            alpha = CHud::m_VehicleFadeTimer * 0.001f * 255.0f;
+            break;
+        default:
+            break;
+
+        }
+
+        CHud::m_VehicleNameTimer += CTimer::ms_fTimeStep * 0.02f * 1000.0f;
+
+        char* textClass[] = {
+            "NORMAL",
+            "POORFAM",
+            "RICHFAM",
+            "EXECUTI",
+            "WORKER",
+            "BIG",
+            "SERVICE",
+            "MOPED",
+            "MOTORBI",
+            "LEISURE",
+            "WORKERB",
+            "BICYCLE",
+            "IGNORE",
+        };
+
+        if (CHud::m_pVehicleNameToPrint) {
+            char vehicleName[512];
+            strcpy(vehicleName, CHud::m_pVehicleNameToPrint);
+
+            if (FindPlayerVehicle(0, true)) {
+                unsigned char vehClass = ((CVehicleModelInfo*)(CModelInfo::GetModelInfo(FindPlayerVehicle(0, true)->m_nModelIndex)))->m_nVehicleClass;
+                if (vehClass == -1 || vehClass > 12)
+                    vehClass = 12;
+
+                const char* c = TextNew.GetText(textClass[vehClass]).text;
+
+                if (c)
+                    sprintf(vehicleName, "%s, %s", CHud::m_pVehicleNameToPrint, c);
+            }
+
+            CFontNew::SetBackground(false);
+            CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
+            CFontNew::SetAlignment(CFontNew::ALIGN_RIGHT);
+            CFontNew::SetWrapX(SCREEN_COORD(640.0f));
+            CFontNew::SetFontStyle(CFontNew::FONT_2);
+            CFontNew::SetOutline(0.0f);
+            CFontNew::SetDropShadow(SCREEN_MULTIPLIER(2.0f));
+            CFontNew::SetDropColor(CRGBA(0, 0, 0, alpha));
+
+            CRGBA col = GET_SETTING(HUD_VEHICLE_NAME).col;
+            CFontNew::SetColor(CRGBA(col.r, col.g, col.b, alpha));
+            CFontNew::SetScale(SCREEN_MULTIPLIER(GET_SETTING(HUD_VEHICLE_NAME).w), SCREEN_MULTIPLIER(GET_SETTING(HUD_VEHICLE_NAME).h));
+            CFontNew::PrintString(HUD_RIGHT(GET_SETTING(HUD_VEHICLE_NAME).x), HUD_BOTTOM(GET_SETTING(HUD_VEHICLE_NAME).y), vehicleName);
+        }
     }
 }
 
@@ -1518,22 +1518,23 @@ void CHudNew::DrawScriptText(char priority) {
 }
 
 void CHudNew::DrawSubtitles() {
-    if (CHud::m_Message[0]) {
-        CFontNew::SetBackground(false);
-        CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
-        CFontNew::SetAlignment(CFontNew::ALIGN_CENTER);
-        CFontNew::SetWrapX(SCREEN_COORD(940.0f));
-        CFontNew::SetFontStyle(CFontNew::FONT_1);
-        CFontNew::SetDropShadow(SCREEN_MULTIPLIER(2.0f));
-        CFontNew::SetOutline(0.0f);
-        CFontNew::SetDropColor(CRGBA(0, 0, 0, 255));
-        CFontNew::SetColor(GET_SETTING(HUD_SUBTITLES).col);
-        CFontNew::SetScale(SCREEN_MULTIPLIER(GET_SETTING(HUD_SUBTITLES).w), SCREEN_MULTIPLIER(GET_SETTING(HUD_SUBTITLES).h));
+    if (!CHud::m_Message[0])
+        return;
 
-        auto str = VHud::ConvertCharStreamToUTFString(CHud::m_Message);
+    CFontNew::SetBackground(false);
+    CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
+    CFontNew::SetAlignment(CFontNew::ALIGN_CENTER);
+    CFontNew::SetWrapX(SCREEN_COORD(940.0f));
+    CFontNew::SetFontStyle(CFontNew::FONT_1);
+    CFontNew::SetDropShadow(SCREEN_MULTIPLIER(2.0f));
+    CFontNew::SetOutline(0.0f);
+    CFontNew::SetDropColor(CRGBA(0, 0, 0, 255));
+    CFontNew::SetColor(GET_SETTING(HUD_SUBTITLES).col);
+    CFontNew::SetScale(SCREEN_MULTIPLIER(GET_SETTING(HUD_SUBTITLES).w), SCREEN_MULTIPLIER(GET_SETTING(HUD_SUBTITLES).h));
 
-        CFontNew::PrintStringFromBottom(SCREEN_COORD_CENTER_LEFT(GET_SETTING(HUD_SUBTITLES).x), HUD_BOTTOM(GET_SETTING(HUD_SUBTITLES).y), str.c_str());
-    }
+    auto str = VHud::ConvertCharStreamToUTFString(CHud::m_Message);
+
+    CFontNew::PrintStringFromBottom(SCREEN_COORD_CENTER_LEFT(GET_SETTING(HUD_SUBTITLES).x), HUD_BOTTOM(GET_SETTING(HUD_SUBTITLES).y), str.c_str());
 }
 
 void CHudNew::DrawHelpText() {

@@ -2690,13 +2690,23 @@ void CMenuNew::Draw() {
         }
 
         //if (m_bHasPlayedMenuMusic && (fNewVolumeForMenu < (0.6f * FrontEndMenuManager.m_nPrefsMusicVolume) ) 
-        if (m_bHasPlayedMenuMusic && m_fVolumeForMenu < 0.4f)
+        const float maxVolumeScale = 0.4f;
+        if (m_bHasPlayedMenuMusic && m_fVolumeForMenu < maxVolumeScale)
         {
-            const float maxVolumeScale = 0.4f;
-
             m_fVolumeForMenu = (CTimer::m_snTimeInMillisecondsPauseMode - m_nPlayMenuMusicTime) / 20000.f;
 #ifdef DEBUG
-            printf("Menu music volume: %.4f\n", m_fVolumeForMenu);
+            CFontNew::SetBackground(false);
+            CFontNew::SetBackgroundColor(CRGBA(0, 0, 0, 0));
+            CFontNew::SetAlignment(CFontNew::ALIGN_LEFT);
+            CFontNew::SetWrapX(SCREEN_COORD(640.0f));
+            CFontNew::SetFontStyle(CFontNew::FONT_1);
+            CFontNew::SetDropShadow(0.0f);
+            CFontNew::SetOutline(0.0f);
+            CFontNew::SetDropColor(CRGBA(0, 0, 0, 0));
+            CFontNew::SetScale(SCREEN_MULTIPLIER(0.6f), SCREEN_MULTIPLIER(1.2f));
+
+            std::string str_dbg = std::format("Menu music volume: {0:.4f}", m_fVolumeForMenu);
+            CFontNew::PrintString(SCREEN_COORD(20.f), SCREEN_COORD(20.0f), str_dbg.c_str());
 #endif
 
             if (m_fVolumeForMenu > maxVolumeScale)
