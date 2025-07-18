@@ -274,21 +274,21 @@ bool CWeaponSelector::IsAbleToSwitchWeapon() {
 
     return
         playa
-        && !playa->m_nPedFlags.bInVehicle
-        && !playa->m_nPedFlags.bDontRender
+        && !playa->bInVehicle
+        && !playa->bDontRender
         && playa->m_ePedState != PEDSTATE_MAKE_PHONECALL
         && playa->m_ePedState != PEDSTATE_ANSWER_MOBILE
         && playa->m_ePedState != PEDSTATE_PAUSE
         && playa->IsPedShootable()
         && playa->m_ePedState != PEDSTATE_FACE_PHONE
-        && !playa->m_nPedFlags.bIsInTheAir
-        && !playa->m_nPedFlags.bFiringWeapon
-        && !playa->m_nPedFlags.bIsAimingGun
+        && !playa->bIsInTheAir
+        && !playa->bFiringWeapon
+        && !playa->bIsAimingGun
         && !playa->m_pPlayerData->m_bInVehicleDontAllowWeaponChange
         && !playa->m_pPlayerData->m_bHaveTargetSelected
         && !CDarkel::FrenzyOnGoing()
         && !playa->m_pAttachedTo
-        && !playa->m_nPhysicalFlags.bAttachedToEntity
+        && !playa->bAttachedToEntity
         && !playa->m_pIntelligence->GetTaskJetPack()
         && !playa->m_pIntelligence->GetTaskClimb()
         && !playa->m_pIntelligence->GetTaskInAir()
@@ -300,7 +300,7 @@ bool CWeaponSelector::IsAbleToSwitchWeapon() {
         && !CMenuPanels::bActive
         && !CHudNew::m_bShowWastedBusted
         && !CHudNew::m_bShowSuccessFailed
-        && !playa->m_nPedFlags.bUsingMobilePhone
+        && !playa->bUsingMobilePhone
         && !CPadNew::GetPad(0)->bDisablePlayerCycleWeapon
         && playa->IsPedInControl()
         && mode != MODE_AIMWEAPON

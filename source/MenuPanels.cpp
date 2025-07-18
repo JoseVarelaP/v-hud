@@ -108,7 +108,7 @@ void CMenuPanels::Draw(unsigned char panelId) {
 
         int panelIDToUse = -1;
         for (int i = 0; i < NumPanels; i++) {
-            char* intName = CEntryExit::ms_spawnPoint->m_szName;
+            auto *intName = static_cast<const char*>(CEntryExit::ms_spawnPoint->m_szName);
             if (intName && intName[0] != '\0')
                 intName = TheText.Get(intName);
             else
@@ -148,7 +148,7 @@ void CMenuPanels::Draw(unsigned char panelId) {
 
         CSprite2d::DrawRect(CRect(HUD_X(rect.left), HUD_Y(rect.top), HUD_X(rect.right), HUD_Y(rect.bottom)), CRGBA(0, 0, 0, 255));
 
-        char* str = TheText.Get(panel->m_acTitle);
+        auto *str = TheText.Get(panel->m_acTitle);
         CFontNew::SetUpperCase(true);
         CFontNew::PrintString(HUD_X(rect.left) + SCREEN_COORD(12.0f), HUD_Y(rect.top) + SCREEN_COORD(6.0f), str);
         CFontNew::SetUpperCase(false);

@@ -1361,7 +1361,7 @@ void CRadarNew::DrawRadarRectangle() {
         bool nitroBar = false;
         float progress = 0.0f;
 
-        if (playa.m_pPed->m_nPedFlags.bInVehicle &&
+        if (playa.m_pPed->bInVehicle &&
             playa.m_pPed->m_pVehicle &&
             playa.m_pPed->m_pVehicle->m_nVehicleClass == VEHICLE_AUTOMOBILE &&
             playa.m_pPed->m_pVehicle->m_pDriver == playa.m_pPed &&
@@ -1373,7 +1373,7 @@ void CRadarNew::DrawRadarRectangle() {
         // Breath bar
         col = GET_SETTING(HUD_BREATH_BAR).col;
         if (CHud::m_ItemToFlash != 10 || CTimer::m_FrameCounter & 8) {
-            if (playa.m_pPed->m_nPhysicalFlags.bSubmergedInWater) {
+            if (playa.m_pPed->bSubmergedInWater) {
                 progress = playa.m_pPed->m_pPlayerData->m_fBreath / CStats::GetFatAndMuscleModifier(STAT_MOD_AIR_IN_LUNG);
                 DrawProgressBar(HUD_X(GET_SETTING(HUD_BREATH_BAR).x), HUD_BOTTOM(GET_SETTING(HUD_BREATH_BAR).y), SCREEN_COORD(GET_SETTING(HUD_BREATH_BAR).w), SCREEN_COORD(GET_SETTING(HUD_BREATH_BAR).h), progress,
                     col);
@@ -1435,7 +1435,7 @@ void CRadarNew::DrawRadarRectangle() {
             // Breath bar
             col = GET_SETTING(HUD_BREATH_BAR_P2).col;
             if (CHud::m_ItemToFlash != 10 || CTimer::m_FrameCounter & 8) {
-                if (playa2.m_pPed->m_nPhysicalFlags.bSubmergedInWater) {
+                if (playa2.m_pPed->bSubmergedInWater) {
                     progress = playa2.m_pPed->m_pPlayerData->m_fBreath / CStats::GetFatAndMuscleModifier(STAT_MOD_AIR_IN_LUNG);
                     DrawProgressBar(HUD_X(GET_SETTING(HUD_BREATH_BAR_P2).x), HUD_BOTTOM(GET_SETTING(HUD_BREATH_BAR_P2).y), SCREEN_COORD(GET_SETTING(HUD_BREATH_BAR_P2).w), SCREEN_COORD(GET_SETTING(HUD_BREATH_BAR_P2).h), progress,
                         col);
@@ -2206,7 +2206,7 @@ void CRadarNew::StreamRadarSection(int x, int y) {
 }
 
 bool CRadarNew::IsPlayerInVehicle() {
-    return FindPlayerPed(-1) && FindPlayerPed(-1)->m_nPedFlags.bInVehicle && FindPlayerPed(-1)->m_pVehicle; 
+    return FindPlayerPed(-1) && FindPlayerPed(-1)->bInVehicle && FindPlayerPed(-1)->m_pVehicle; 
 }
 
 bool CRadarNew::Is3dRadar() {

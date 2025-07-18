@@ -512,7 +512,7 @@ void CMenuNew::BuildMenuScreen() {
         }
 
         if (VHud::bModLoader && !VHud::bSAMP) {
-            char* mlText = TheText.Get("ML_F0HH");
+            auto *mlText = TheText.Get("ML_F0HH");
             if (mlText[0] != '\0') {
                 if (auto modLoader = AddNewTab(settings, MENUENTRY_CHANGETAB, "FE_ML", NULL, false)) {
 
@@ -590,7 +590,7 @@ void CMenuNew::BuildMenuScreen() {
 
     // MENUSCREEN_MODLOADER_MOD_OPTION
     if (VHud::bModLoader && !VHud::bSAMP) {
-        char* mlText = TheText.Get("ML_F0HH");
+        auto *mlText = TheText.Get("ML_F0HH");
         if (mlText[0] != '\0') {
             if (auto mod = AddNewScreen("FE_SELMOD")) {
                 if (auto modName = AddNewTab(mod, MENUENTRY_CHANGETAB, "FE_MLSET", NULL, false)) {

@@ -458,9 +458,9 @@ void CHudNew::Draw() {
             || m_bShowWastedBusted
             || CMenuPanels::bActive
             || MenuNew.bMenuActive
-            || playa->m_nPedFlags.bFallenDown
-            || playa->m_nPedFlags.bIsTalking
-            || playa->m_nPedFlags.bIsInTheAir
+            || playa->bFallenDown
+            || playa->bIsTalking
+            || playa->bIsInTheAir
             || (playa->m_pIntelligence && playa->m_pIntelligence->GetUsingParachute())
             || (playa->m_pIntelligence && playa->m_pIntelligence->GetTaskUseGun())
             || playa->m_ePedState == PEDSTATE_ON_FIRE
@@ -502,7 +502,7 @@ bool CHudNew::IsAimingWeapon() {
         || mode == MODE_SNIPER_RUNABOUT
         || mode == MODE_CAMERA
         || mode == MODE_SYPHON
-        || (mode == MODE_1STPERSON && !FindPlayerPed(0)->m_nPedFlags.bInVehicle)
+        || (mode == MODE_1STPERSON && !FindPlayerPed(0)->bInVehicle)
         || mode == MODE_AIMWEAPON_FROMCAR
         || mode == MODE_AIMWEAPON_ATTACHED
         || mode == MODE_TWOPLAYER_IN_CAR_AND_SHOOTING;
@@ -565,7 +565,7 @@ void CHudNew::DrawCrosshairs() {
     if (playa) {
         bool ik = playa->m_pIntelligence && playa->m_pIntelligence->GetTaskUseGun() && playa->m_pIntelligence->GetTaskUseGun()->m_pWeaponInfo->m_nFlags.bAimWithArm && !playa->m_pIntelligence->GetTaskUseGun()->m_ArmIKInUse;
 
-        if (ik && !playa->m_nPedFlags.bIsDucking && !playa->m_nPedFlags.bInVehicle)
+        if (ik && !playa->bIsDucking && !playa->bInVehicle)
             return;
 
         static bool haveTargetSelected = false;
@@ -1412,7 +1412,7 @@ void CHudNew::DrawMissionTimers() {
 
             if (CUserDisplay::OnscnTimer.m_Clock.m_bEnabled) {
                 MissionTimersString[nTimersCount][0] = CUserDisplay::OnscnTimer.m_Clock.m_szDisplayedText;
-                MissionTimersString[nTimersCount][1] = TheText.Get(CUserDisplay::OnscnTimer.m_Clock.m_szDescriptionTextKey);
+                MissionTimersString[nTimersCount][1] = const_cast<char*>(TheText.Get(CUserDisplay::OnscnTimer.m_Clock.m_szDescriptionTextKey));
                 barChart[nTimersCount] = false;
                 nTimersCount++;
             }
@@ -1427,7 +1427,7 @@ void CHudNew::DrawMissionTimers() {
                     barChart[nTimersCount] = false;
 
                 MissionTimersString[nTimersCount][0] = CUserDisplay::OnscnTimer.m_aCounters[i].m_szDisplayedText;
-                MissionTimersString[nTimersCount][1] = TheText.Get(CUserDisplay::OnscnTimer.m_aCounters[i].m_szDescriptionTextKey);
+                MissionTimersString[nTimersCount][1] = const_cast<char*>(TheText.Get(CUserDisplay::OnscnTimer.m_aCounters[i].m_szDescriptionTextKey));
                 nTimersCount++;
             }
 
